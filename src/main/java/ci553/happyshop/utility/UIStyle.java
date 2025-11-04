@@ -64,7 +64,7 @@ public record UIStyle() {
             "-fx-background-color: lightblue";
 
     public static final String rootStyleGray = "-fx-padding: 8px; " +
-            "-fx-background-color: lightgray";
+            "-fx-background-color: pink";
 
     public static final String rootStyleWarehouse = "-fx-padding: 8px; " +
             "-fx-background-color: lightpink";
