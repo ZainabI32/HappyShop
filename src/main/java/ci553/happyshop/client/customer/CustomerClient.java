@@ -5,6 +5,20 @@ import ci553.happyshop.storageAccess.DatabaseRWFactory;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
+
+import java.io.IOException;
+import java.sql.*;
+
 /**
  * A standalone Customer Client that can be run independently without launching the full system.
  * Designed for early-stage testing, though full functionality may require other clients to be active.
@@ -25,6 +39,8 @@ public class CustomerClient extends Application {
      * and is triggered by the Customer Model when needed.
      */
     @Override
+
+
     public void start(Stage window) {
         CustomerView cusView = new CustomerView();
         CustomerController cusController = new CustomerController();
