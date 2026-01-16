@@ -1,0 +1,145 @@
+<html>
+<head>
+<title>AlertSimulator.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #7a7e85;}
+.s5 { color: #6aab73;}
+.s6 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+AlertSimulator.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">client</span><span class="s2">.</span><span class="s1">warehouse</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">UIStyle</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">WindowBounds</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">geometry</span><span class="s2">.</span><span class="s1">Pos</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">Scene</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">control</span><span class="s2">.</span><span class="s1">Button</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">control</span><span class="s2">.</span><span class="s1">Label</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">control</span><span class="s2">.</span><span class="s1">TextArea</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.</span><span class="s1">HBox</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.</span><span class="s1">VBox</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">Modality</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">Stage</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">StageStyle</span><span class="s2">;</span>
+<span class="s3">/**</span>
+ <span class="s3">* while an alert is showing,</span>
+ <span class="s3">* the JavaFX application is blocked by the modal nature of the alert,</span>
+ <span class="s3">* which prevents any further actions from being executed until the alert is dismissed.</span>
+ <span class="s3">*/</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* We simulate the alert window instead of using the built-in Alert to meet three critical requirements:</span>
+ <span class="s3">* 1. Customizable Appearance and Behavior: The built-in alert lacks flexibility in styling and positioning. By simulating the alert using a custom Stage, we can fully control the visual appearance (like adding emojis, custom text styles, and button positioning) to meet our design specifications.</span>
+ <span class="s3">* 2. Stage Decoration Control: By using a custom Stage with `StageStyle.UNDECORATED`, we prevent the user from minimizing, resizing, or closing the alert using the standard window controls. This ensures that the alert is always visible and that the user cannot ignore it, forcing them to interact with the alert before proceeding.</span>
+ <span class="s3">* 3. Emergency Shutdown (ESD): The built-in Alert blocks interaction and doesn't allow for forceful closure or shutdown. Using a custom Stage, we can ensure that the alert can be forcibly closed during ESD.</span>
+ <span class="s3">* This solution gives us the necessary control over the user interaction flow, visual presentation, and prevents any way of bypassing the error handling process, which isn't possible with the standard Alert class.</span>
+<span class="s3">*/</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* This class provides a simple alert simulation window to display error messages.</span>
+ <span class="s3">*</span>
+ <span class="s3">* - The scene is created only once to avoid unnecessary recreation of the same layout.</span>
+ <span class="s3">* - The window is created and shown only when needed. If the window is already open, it will be brought to the front.</span>
+ <span class="s3">* - The `window` and `scene` are managed separately, allowing the scene to be reused while creating the window as needed.</span>
+ <span class="s3">* - The window is closed and reset when the &quot;Ok&quot; button is clicked.</span>
+ <span class="s3">* - The window is also closed when cancel or submit was clicked even the window is showing</span>
+ <span class="s3">* This design ensures that the alert window is efficient by not recreating the scene multiple times, and the window only exists when necessary.</span>
+ <span class="s3">*/</span>
+
+<span class="s0">public class </span><span class="s1">AlertSimulator </span><span class="s2">{</span>
+    <span class="s0">private static int </span><span class="s1">WIDTH </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">AlertSimWinWidth</span><span class="s2">;</span>
+    <span class="s0">private static int </span><span class="s1">HEIGHT </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">AlertSimWinHeight</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">WarehouseView warehouseView</span><span class="s2">;</span>
+    <span class="s0">private  </span><span class="s1">Stage window</span><span class="s2">; </span><span class="s4">//window for AlertSimulator</span>
+    <span class="s0">private  </span><span class="s1">Scene scene</span><span class="s2">; </span><span class="s4">// Scene for AlertSimulator</span>
+    <span class="s0">private  </span><span class="s1">Label laErrorMsg</span><span class="s2">;</span><span class="s4">// Label to display error messages</span>
+    <span class="s0">private </span><span class="s1">TextArea taErrorMsg</span><span class="s2">;</span><span class="s4">// Label to display error messages</span>
+
+    <span class="s4">// Create the Scene (only once)</span>
+    <span class="s0">private  void </span><span class="s1">createScene</span><span class="s2">() {</span>
+        <span class="s1">Label laTitle </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s5">&quot;</span><span class="s0">\u26A0 </span><span class="s5">Please fix input errors...&quot;</span><span class="s2">); </span><span class="s4">// for emoji ⚠️</span>
+        <span class="s1">laTitle</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">alertTitleLabelStyle</span><span class="s2">); </span><span class="s4">//red</span>
+
+        <span class="s1">taErrorMsg </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextArea</span><span class="s2">();</span>
+        <span class="s1">taErrorMsg</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">taErrorMsg</span><span class="s2">.</span><span class="s1">setWrapText</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span><span class="s4">// text wraps if long</span>
+        <span class="s1">taErrorMsg</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">alertContentTextAreaStyle</span><span class="s2">);</span>
+
+        <span class="s1">VBox vbLaTaMsg </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s6">3</span><span class="s2">, </span><span class="s1">laTitle</span><span class="s2">, </span><span class="s1">taErrorMsg</span><span class="s2">); </span>
+        <span class="s1">vbLaTaMsg</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">); </span><span class="s4">// Wrap two labels in a VBox to align it left</span>
+
+        <span class="s1">Button btnOk </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s5">&quot;Ok&quot;</span><span class="s2">);</span>
+        <span class="s1">btnOk</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">alertBtnStyle</span><span class="s2">);</span>
+        <span class="s1">HBox hbBtnOk </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s1">btnOk</span><span class="s2">);</span>
+        <span class="s1">hbBtnOk</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">); </span><span class="s4">//aligned to right</span>
+        <span class="s1">btnOk</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s1">e -&gt; </span><span class="s2">{</span>
+            <span class="s1">window</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+        <span class="s2">});</span>
+
+        <span class="s1">VBox vb </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s6">2</span><span class="s2">,</span><span class="s1">vbLaTaMsg</span><span class="s2">, </span><span class="s1">hbBtnOk</span><span class="s2">);</span>
+        <span class="s1">vb</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+        <span class="s1">vb</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">rootStyleGray</span><span class="s2">);</span>
+        <span class="s1">scene </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Scene</span><span class="s2">(</span><span class="s1">vb</span><span class="s2">, </span><span class="s1">WIDTH</span><span class="s2">,</span><span class="s1">HEIGHT</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s4">// Create the window if not exists</span>
+    <span class="s4">//also recreate a window if the user closed it with error message in it</span>
+    <span class="s0">private  void </span><span class="s1">createWindow</span><span class="s2">() {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">scene </span><span class="s2">== </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">createScene</span><span class="s2">();  </span><span class="s4">//create scene if not exists</span>
+        <span class="s2">}</span>
+
+        <span class="s1">window </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Stage</span><span class="s2">();</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">initModality</span><span class="s2">(</span><span class="s1">Modality</span><span class="s2">.</span><span class="s1">NONE</span><span class="s2">); </span><span class="s4">//Optional: explicitly set as non-blocking, though this is the default</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">initStyle</span><span class="s2">(</span><span class="s1">StageStyle</span><span class="s2">.</span><span class="s1">UNDECORATED</span><span class="s2">); </span><span class="s4">// No title bar</span>
+        <span class="s4">//window.setTitle(&quot;\uD83C\uDFEC input error message&quot;); // for icon 🏬</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setScene</span><span class="s2">(</span><span class="s1">scene</span><span class="s2">);</span>
+
+        <span class="s4">//get bounds of warehouse window which trigers the alertSimulator</span>
+        <span class="s4">// so that we can put the alertSimulator on top of it and at a suitable position</span>
+        <span class="s1">WindowBounds bounds </span><span class="s2">= </span><span class="s1">warehouseView</span><span class="s2">.</span><span class="s1">getWindowBounds</span><span class="s2">();</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setX</span><span class="s2">(</span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">width</span><span class="s2">-</span><span class="s6">10</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setY</span><span class="s2">(</span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">y </span><span class="s2">+ </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">HistoryWinHeight</span><span class="s2">+</span><span class="s6">30</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">show</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s4">// Show error message in the alert window</span>
+    <span class="s0">public  void </span><span class="s1">showErrorMsg</span><span class="s2">(</span><span class="s1">String errorMsg</span><span class="s2">) {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">window </span><span class="s2">==</span><span class="s0">null </span><span class="s2">||!</span><span class="s1">window</span><span class="s2">.</span><span class="s1">isShowing</span><span class="s2">() ) {</span>
+            <span class="s1">createWindow</span><span class="s2">(); </span><span class="s4">// create window if not exists</span>
+        <span class="s2">}</span>
+
+        <span class="s4">//laErrorMsg.setText(errorMsg); // Update the error message</span>
+        <span class="s1">taErrorMsg</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">errorMsg</span><span class="s2">); </span><span class="s4">// Update the error message</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">toFront</span><span class="s2">(); </span><span class="s4">// Bring the window to the front if it's already open</span>
+    <span class="s2">}</span>
+
+    <span class="s3">/**</span>
+     <span class="s3">* Closes the alert window.</span>
+     <span class="s3">*</span>
+     <span class="s3">* The purpose of this method is to provide a way to close the alert window from outside the AlertSimulator class,</span>
+     <span class="s3">* when it is no longer needed (e.g., after canceling or submitting an action while the alert window is still showing</span>
+     <span class="s3">* from a previous error).</span>
+     <span class="s3">*/</span>
+
+    <span class="s0">public  void </span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">() {</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">window </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">&amp;&amp; </span><span class="s1">window</span><span class="s2">.</span><span class="s1">isShowing</span><span class="s2">()) {</span>
+            <span class="s1">window</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

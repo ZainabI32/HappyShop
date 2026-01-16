@@ -1,0 +1,436 @@
+<html>
+<head>
+<title>WarehouseModel.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #7a7e85;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+WarehouseModel.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">client</span><span class="s2">.</span><span class="s1">warehouse</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">catalogue</span><span class="s2">.</span><span class="s1">Product</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">storageAccess</span><span class="s2">.</span><span class="s1">DatabaseRW</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">storageAccess</span><span class="s2">.</span><span class="s1">DerbyRW</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">storageAccess</span><span class="s2">.</span><span class="s1">ImageFileManager</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">StorageLocation</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">IOException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">nio</span><span class="s2">.</span><span class="s1">file</span><span class="s2">.</span><span class="s1">Path</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">nio</span><span class="s2">.</span><span class="s1">file</span><span class="s2">.</span><span class="s1">Paths</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">sql</span><span class="s2">.</span><span class="s1">SQLException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">time</span><span class="s2">.</span><span class="s1">LocalDateTime</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">time</span><span class="s2">.</span><span class="s1">format</span><span class="s2">.</span><span class="s1">DateTimeFormatter</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ArrayList</span><span class="s2">;</span>
+
+<span class="s0">public class </span><span class="s1">WarehouseModel </span><span class="s2">{</span>
+    <span class="s0">public </span><span class="s1">WarehouseView view</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">DatabaseRW databaseRW</span><span class="s2">; </span><span class="s3">//Interface type, not specific implementation</span>
+                         <span class="s3">//Benefits: Flexibility: Easily change the database implementation.</span>
+
+    <span class="s0">private </span><span class="s1">ArrayList</span><span class="s2">&lt;</span><span class="s1">Product</span><span class="s2">&gt; </span><span class="s1">productList </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ArrayList</span><span class="s2">&lt;&gt;(); </span><span class="s3">// search results fetched from the database</span>
+    <span class="s0">private </span><span class="s1">Product theSelectedPro</span><span class="s2">; </span><span class="s3">// the product selected from the ListView before the user edits or deletes</span>
+    <span class="s0">private </span><span class="s1">String theNewProId</span><span class="s2">;</span>
+
+    <span class="s3">//information used to update editProduct child in WarehouseView</span>
+    <span class="s1">String displayIdEdit</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+    <span class="s1">String displayPriceEdit</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+    <span class="s1">String displayStockEdit</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+    <span class="s1">String displayDescriptionEdit</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+    <span class="s1">String displayImageUrlEdit </span><span class="s2">=</span><span class="s4">&quot;WarehouseImageHolder.jpg&quot;</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">HistoryWindow historyWindow</span><span class="s2">;</span>
+    <span class="s0">public </span><span class="s1">AlertSimulator alertSimulator</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">String displayInputErrorMsg </span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">; </span><span class="s3">//error message showing in the alertSimulator</span>
+    <span class="s0">private </span><span class="s1">ArrayList</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">displayManageHistory </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ArrayList</span><span class="s2">&lt;&gt;();</span><span class="s3">// Manage Product history</span>
+                                                               <span class="s3">//shows in the HistoryWindow</span>
+    <span class="s0">private enum </span><span class="s1">ManageProductType</span><span class="s2">{</span>
+        <span class="s1">Edited</span><span class="s2">,</span>
+        <span class="s1">Deleted</span><span class="s2">,</span>
+        <span class="s1">New</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private enum </span><span class="s1">UpdateForAction</span><span class="s2">{</span>
+        <span class="s3">//actions in Search Page</span>
+        <span class="s1">BtnSearch</span><span class="s2">,  </span><span class="s3">//actually its updating the Observable ProductList</span>
+        <span class="s1">BtnEdit</span><span class="s2">,</span>
+        <span class="s1">BtnDelete</span><span class="s2">,</span>
+
+        <span class="s3">//actions in Editing an existing product page</span>
+        <span class="s1">BtnChangeStockBy</span><span class="s2">, </span><span class="s3">// Refers to both &quot;+&quot; and &quot;−&quot; buttons for changing stock</span>
+        <span class="s1">BtnSummitEdit</span><span class="s2">,</span>
+        <span class="s1">BtnCancelEdit</span><span class="s2">,</span>
+
+        <span class="s3">// actions in Adding a new product to stock page</span>
+        <span class="s1">BtnCancelNew</span><span class="s2">,</span>
+        <span class="s1">BtnSummitNew</span><span class="s2">,</span>
+
+        <span class="s3">//show user input error message in alertSimulator</span>
+        <span class="s1">ShowInputErrorMsg</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">doSearch</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">SQLException </span><span class="s2">{</span>
+        <span class="s1">String keyword </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfSearchKeyword</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s0">if </span><span class="s2">(!</span><span class="s1">keyword</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">)) {</span>
+            <span class="s1">productList </span><span class="s2">= </span><span class="s1">databaseRW</span><span class="s2">.</span><span class="s1">searchProduct</span><span class="s2">(</span><span class="s1">keyword</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span><span class="s2">{</span>
+            <span class="s1">productList</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;please type product ID or name to search&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSearch</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">doDelete</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">SQLException</span><span class="s2">, </span><span class="s1">IOException </span><span class="s2">{</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;delete gets called in model&quot;</span><span class="s2">);</span>
+        <span class="s1">Product pro  </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">getSelectionModel</span><span class="s2">().</span><span class="s1">getSelectedItem</span><span class="s2">();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">pro </span><span class="s2">!= </span><span class="s0">null </span><span class="s2">) {</span>
+            <span class="s1">theSelectedPro </span><span class="s2">= </span><span class="s1">pro</span><span class="s2">;</span>
+            <span class="s1">productList</span><span class="s2">.</span><span class="s1">remove</span><span class="s2">(</span><span class="s1">theSelectedPro</span><span class="s2">); </span><span class="s3">//remove the product from product List</span>
+
+            <span class="s3">//update databse: delete the product from database</span>
+            <span class="s1">databaseRW</span><span class="s2">.</span><span class="s1">deleteProduct</span><span class="s2">(</span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductId</span><span class="s2">());</span>
+
+            <span class="s3">//delete the image from imageFolder &quot;images/&quot;</span>
+            <span class="s1">String imageName </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductImageName</span><span class="s2">(); </span><span class="s3">//eg 0011.jpg;</span>
+            <span class="s1">ImageFileManager</span><span class="s2">.</span><span class="s1">deleteImageFile</span><span class="s2">(</span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder</span><span class="s2">, </span><span class="s1">imageName</span><span class="s2">);</span>
+
+            <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnDelete</span><span class="s2">);</span>
+            <span class="s1">theSelectedPro </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span><span class="s2">{</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;No product was selected&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">doEdit</span><span class="s2">() {</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Edit gets called in model&quot;</span><span class="s2">);</span>
+        <span class="s1">Product pro </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">getSelectionModel</span><span class="s2">().</span><span class="s1">getSelectedItem</span><span class="s2">();</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">pro </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">theSelectedPro </span><span class="s2">= </span><span class="s1">pro</span><span class="s2">;</span>
+            <span class="s1">displayIdEdit </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductId</span><span class="s2">();</span>
+            <span class="s1">displayPriceEdit </span><span class="s2">= </span><span class="s1">String</span><span class="s2">.</span><span class="s1">format</span><span class="s2">(</span><span class="s4">&quot;%.2f&quot;</span><span class="s2">, </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getUnitPrice</span><span class="s2">());</span>
+            <span class="s1">displayStockEdit </span><span class="s2">= </span><span class="s1">String</span><span class="s2">.</span><span class="s1">valueOf </span><span class="s2">(</span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getStockQuantity</span><span class="s2">());</span>
+            <span class="s1">displayDescriptionEdit </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductDescription</span><span class="s2">();</span>
+
+            <span class="s1">String relativeImageUri </span><span class="s2">= </span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder </span><span class="s2">+ </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductImageName</span><span class="s2">();</span>
+            <span class="s1">Path imageFullPath </span><span class="s2">= </span><span class="s1">Paths</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">relativeImageUri</span><span class="s2">).</span><span class="s1">toAbsolutePath</span><span class="s2">();</span>
+            <span class="s1">displayImageUrlEdit </span><span class="s2">= </span><span class="s1">imageFullPath</span><span class="s2">.</span><span class="s1">toUri</span><span class="s2">().</span><span class="s1">toString</span><span class="s2">();</span><span class="s3">//build the full path Uri</span>
+
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;get new pro image name: &quot; </span><span class="s2">+ </span><span class="s1">displayImageUrlEdit</span><span class="s2">);</span>
+            <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnEdit</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span><span class="s2">{</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;No product was selected&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">doCancel</span><span class="s2">(){</span>
+       <span class="s0">if</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;EDIT&quot;</span><span class="s2">)){</span>
+           <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnCancelEdit</span><span class="s2">);</span>
+           <span class="s1">theSelectedPro </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+       <span class="s2">}</span>
+       <span class="s0">if</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;NEW&quot;</span><span class="s2">)){</span>
+           <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnCancelNew</span><span class="s2">);</span>
+           <span class="s1">theNewProId </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+       <span class="s2">}</span>
+    <span class="s2">}</span>
+    <span class="s0">void </span><span class="s1">doSummit</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">SQLException</span><span class="s2">, </span><span class="s1">IOException </span><span class="s2">{</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;EDIT&quot;</span><span class="s2">)){</span>
+            <span class="s1">doSubmitEdit</span><span class="s2">();</span>
+        <span class="s2">}</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;NEW&quot;</span><span class="s2">)){</span>
+            <span class="s1">doSubmitNew</span><span class="s2">();</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">doSubmitEdit</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">IOException</span><span class="s2">, </span><span class="s1">SQLException </span><span class="s2">{</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;ok edit is called&quot;</span><span class="s2">);</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">theSelectedPro</span><span class="s2">!=</span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">String id</span><span class="s2">=</span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductId</span><span class="s2">();</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;theSelectedPro &quot; </span><span class="s2">+ </span><span class="s1">id</span><span class="s2">); </span><span class="s3">//debug purpose</span>
+            <span class="s1">String imageName </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductImageName</span><span class="s2">();</span>
+
+            <span class="s1">String textPrice </span><span class="s2">=</span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfPriceEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+            <span class="s1">String textStock </span><span class="s2">=</span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+            <span class="s1">String description </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+
+            <span class="s0">if</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">isUserSelectedImageEdit </span><span class="s2">== </span><span class="s0">true</span><span class="s2">){  </span><span class="s3">//if the user changed image</span>
+                <span class="s1">ImageFileManager</span><span class="s2">.</span><span class="s1">deleteImageFile</span><span class="s2">(</span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder</span><span class="s2">, </span><span class="s1">imageName</span><span class="s2">); </span><span class="s3">//delete the old image</span>
+                <span class="s3">//copy the user selected image to project image folder</span>
+                <span class="s3">//we use productId as image name, but we need to get its extension from the user selected image</span>
+                <span class="s1">String newImageNameWithExtension </span><span class="s2">= </span><span class="s1">ImageFileManager</span><span class="s2">.</span><span class="s1">copyFileToDestination</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">userSelectedImageUriEdit</span><span class="s2">, </span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder</span><span class="s2">,</span><span class="s1">id</span><span class="s2">);</span>
+                <span class="s1">imageName </span><span class="s2">= </span><span class="s1">newImageNameWithExtension</span><span class="s2">;</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if</span><span class="s2">(</span><span class="s1">validateInputEditChild</span><span class="s2">(</span><span class="s1">textPrice</span><span class="s2">,</span><span class="s1">textStock</span><span class="s2">,</span><span class="s1">description</span><span class="s2">)==</span><span class="s0">false</span><span class="s2">){</span>
+                <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">ShowInputErrorMsg</span><span class="s2">);</span>
+            <span class="s2">}</span>
+            <span class="s0">else</span><span class="s2">{</span>
+                <span class="s0">double </span><span class="s1">price </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">textPrice</span><span class="s2">);</span>
+                <span class="s0">int </span><span class="s1">stock</span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">textStock</span><span class="s2">);</span>
+                <span class="s3">//update datbase</span>
+                <span class="s1">databaseRW</span><span class="s2">.</span><span class="s1">updateProduct</span><span class="s2">(</span><span class="s1">id</span><span class="s2">,</span><span class="s1">description</span><span class="s2">,</span><span class="s1">price</span><span class="s2">,</span><span class="s1">imageName</span><span class="s2">,</span><span class="s1">stock</span><span class="s2">);</span>
+
+                <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSummitEdit</span><span class="s2">);</span>
+                <span class="s1">theSelectedPro</span><span class="s2">=</span><span class="s0">null</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+        <span class="s0">else</span><span class="s2">{</span>
+            <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;No Product Selected&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">doChangeStockBy</span><span class="s2">(</span><span class="s1">String addOrSub</span><span class="s2">) </span><span class="s0">throws </span><span class="s1">SQLException </span><span class="s2">{</span>
+        <span class="s0">int </span><span class="s1">oldStock </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">());</span>
+        <span class="s0">int </span><span class="s1">newStock </span><span class="s2">=</span><span class="s1">oldStock</span><span class="s2">;</span>
+        <span class="s1">String TextChangeBy </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s0">if</span><span class="s2">(!</span><span class="s1">TextChangeBy</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">()){</span>
+            <span class="s0">if</span><span class="s2">(</span><span class="s1">validateInputChangeStockBy</span><span class="s2">(</span><span class="s1">TextChangeBy</span><span class="s2">)==</span><span class="s0">false</span><span class="s2">){</span>
+                <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">ShowInputErrorMsg</span><span class="s2">);</span>
+            <span class="s2">} </span><span class="s0">else</span><span class="s2">{</span>
+                <span class="s0">int </span><span class="s1">changeBy </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">TextChangeBy</span><span class="s2">);</span>
+                <span class="s0">switch</span><span class="s2">(</span><span class="s1">addOrSub</span><span class="s2">){</span>
+                    <span class="s0">case </span><span class="s4">&quot;add&quot;</span><span class="s2">:</span>
+                        <span class="s1">newStock </span><span class="s2">= </span><span class="s1">oldStock </span><span class="s2">+ </span><span class="s1">changeBy</span><span class="s2">;</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                    <span class="s0">case </span><span class="s4">&quot;sub&quot;</span><span class="s2">:</span>
+                        <span class="s1">newStock </span><span class="s2">= </span><span class="s1">oldStock </span><span class="s2">- </span><span class="s1">changeBy</span><span class="s2">;</span>
+                        <span class="s0">break</span><span class="s2">;</span>
+                <span class="s2">}</span>
+                <span class="s1">displayStockEdit </span><span class="s2">= </span><span class="s1">String</span><span class="s2">.</span><span class="s1">valueOf </span><span class="s2">(</span><span class="s1">newStock</span><span class="s2">);</span>
+                <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnChangeStockBy</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private  boolean </span><span class="s1">validateInputChangeStockBy</span><span class="s2">(</span><span class="s1">String txChangeBy</span><span class="s2">) </span><span class="s0">throws </span><span class="s1">SQLException </span><span class="s2">{</span>
+        <span class="s1">StringBuilder errorMessage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">StringBuilder</span><span class="s2">();</span>
+        <span class="s3">// Validate Stock changBy Quantity (must be an integer)</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">changeBy </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">txChangeBy</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e</span><span class="s2">) {</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;Invalid stock quantity format.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s3">// Show Alert if there are errors</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">length</span><span class="s2">() &gt; </span><span class="s5">0</span><span class="s2">) {</span>
+            <span class="s1">displayInputErrorMsg </span><span class="s2">= </span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">();</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">doSubmitNew</span><span class="s2">() </span><span class="s0">throws </span><span class="s1">SQLException</span><span class="s2">, </span><span class="s1">IOException </span><span class="s2">{</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Adding new Pro in model&quot;</span><span class="s2">);</span>
+
+        <span class="s3">//all info(input from user) about the new product</span>
+        <span class="s1">theNewProId </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfIdNewPro</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s1">String textPrice </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfPriceNewPro</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s1">String textStock </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfStockNewPro</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s1">String description </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">taDescriptionNewPro</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">();</span>
+        <span class="s1">String iPath </span><span class="s2">= </span><span class="s1">view</span><span class="s2">.</span><span class="s1">imageUriNewPro</span><span class="s2">; </span><span class="s3">//image Path from the imageChooser in View class</span>
+
+        <span class="s3">//validate input</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">validateInputNewProChild</span><span class="s2">(</span><span class="s1">theNewProId</span><span class="s2">, </span><span class="s1">textPrice</span><span class="s2">, </span><span class="s1">textStock</span><span class="s2">, </span><span class="s1">description</span><span class="s2">, </span><span class="s1">iPath</span><span class="s2">) ==</span><span class="s0">false</span><span class="s2">) {</span>
+            <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">ShowInputErrorMsg</span><span class="s2">);</span>
+        <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+            <span class="s3">//copy the user selected image to project image folder and using productId as image name</span>
+            <span class="s3">//and get the image extension from the source image, we write this name to database</span>
+            <span class="s1">String imageNameWithExtension </span><span class="s2">= </span><span class="s1">ImageFileManager</span><span class="s2">.</span><span class="s1">copyFileToDestination</span><span class="s2">(</span><span class="s1">view</span><span class="s2">.</span><span class="s1">imageUriNewPro</span><span class="s2">, </span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder</span><span class="s2">,</span><span class="s1">theNewProId</span><span class="s2">);</span>
+            <span class="s0">double </span><span class="s1">price </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">textPrice</span><span class="s2">);</span>
+            <span class="s0">int </span><span class="s1">stock </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">textStock</span><span class="s2">);</span>
+
+            <span class="s3">//insertNewProduct to databse (String id, String des,double price,String image,int stock)</span>
+            <span class="s3">//a record in databse looks like ('0001', '40 inch TV', 269.00,'0001TV.jpg',100)&quot;</span>
+            <span class="s1">databaseRW</span><span class="s2">.</span><span class="s1">insertNewProduct</span><span class="s2">(</span><span class="s1">theNewProId</span><span class="s2">,</span><span class="s1">description</span><span class="s2">,</span><span class="s1">price</span><span class="s2">,</span><span class="s1">imageNameWithExtension</span><span class="s2">,</span><span class="s1">stock</span><span class="s2">);</span>
+            <span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSummitNew</span><span class="s2">);</span>
+            <span class="s1">theNewProId </span><span class="s2">= </span><span class="s0">null</span><span class="s2">;</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private  boolean </span><span class="s1">validateInputEditChild</span><span class="s2">(</span><span class="s1">String txPrice</span><span class="s2">, </span><span class="s1">String txStock</span><span class="s2">,</span>
+                                         <span class="s1">String description</span><span class="s2">) </span><span class="s0">throws </span><span class="s1">SQLException </span><span class="s2">{</span>
+
+        <span class="s1">StringBuilder errorMessage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">StringBuilder</span><span class="s2">();</span>
+
+        <span class="s3">// Validate Price (must be a positive number, and two digitals )</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">double </span><span class="s1">price </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">txPrice</span><span class="s2">);</span>
+
+            <span class="s3">// Validate: Ensure at most two decimal places</span>
+            <span class="s0">if </span><span class="s2">(!</span><span class="s1">txPrice</span><span class="s2">.</span><span class="s1">matches</span><span class="s2">(</span><span class="s4">&quot;^[0-9]+(</span><span class="s0">\\</span><span class="s4">.[0-9]{0,2})?$&quot;</span><span class="s2">)) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Price can have at most two decimal places.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">price </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Price must be a positive number.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e</span><span class="s2">) {</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Invalid price format.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// Validate if there is unperformed stock changeBy:</span>
+        <span class="s0">if</span><span class="s2">(!</span><span class="s1">view</span><span class="s2">.</span><span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">().</span><span class="s1">trim</span><span class="s2">().</span><span class="s1">isEmpty</span><span class="s2">()){</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Change stock by not applied.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// Validate Stock Quantity (must be a non-negative integer)</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">stock </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">txStock</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">stock </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Stock quantity cannot be negative.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e</span><span class="s2">) {</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Invalid stock quantity format.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// Validate Description</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">description</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">())</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Product description cannot be empty.&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// Show Alert if there are errors</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">length</span><span class="s2">() &gt; </span><span class="s5">0</span><span class="s2">) {</span>
+            <span class="s1">displayInputErrorMsg </span><span class="s2">= </span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">();</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private  boolean </span><span class="s1">validateInputNewProChild</span><span class="s2">(</span><span class="s1">String id</span><span class="s2">, </span><span class="s1">String txPrice</span><span class="s2">, </span><span class="s1">String txStock</span><span class="s2">,</span>
+                                   <span class="s1">String description</span><span class="s2">, </span><span class="s1">String imageUri</span><span class="s2">) </span><span class="s0">throws </span><span class="s1">SQLException </span><span class="s2">{</span>
+
+        <span class="s1">StringBuilder errorMessage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">StringBuilder</span><span class="s2">();</span>
+        <span class="s3">// Validate Id (must be exactly 4 digits)</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">id </span><span class="s2">== </span><span class="s0">null </span><span class="s2">|| !</span><span class="s1">id</span><span class="s2">.</span><span class="s1">matches</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\\</span><span class="s4">d{4}&quot;</span><span class="s2">))</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Product ID must be exactly 4 digits.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s3">//check Id is unique</span>
+        <span class="s0">if</span><span class="s2">(!</span><span class="s1">databaseRW</span><span class="s2">.</span><span class="s1">isProIdAvailable</span><span class="s2">(</span><span class="s1">id</span><span class="s2">))</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Product ID &quot; </span><span class="s2">+ </span><span class="s1">id </span><span class="s2">+ </span><span class="s4">&quot; is not available.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// Validate Price (must be a positive number, and two digitals )</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">double </span><span class="s1">price </span><span class="s2">= </span><span class="s1">Double</span><span class="s2">.</span><span class="s1">parseDouble</span><span class="s2">(</span><span class="s1">txPrice</span><span class="s2">);</span>
+
+            <span class="s3">// Validate: Ensure at most two decimal places</span>
+            <span class="s0">if </span><span class="s2">(!</span><span class="s1">txPrice</span><span class="s2">.</span><span class="s1">matches</span><span class="s2">(</span><span class="s4">&quot;^[0-9]+(</span><span class="s0">\\</span><span class="s4">.[0-9]{0,2})?$&quot;</span><span class="s2">)) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Price can have at most two decimal places.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">price </span><span class="s2">&lt;= </span><span class="s5">0</span><span class="s2">) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Price must be a positive number.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e</span><span class="s2">) {</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Invalid price format.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+
+        <span class="s3">// Validate Stock Quantity (must be a non-negative integer)</span>
+        <span class="s0">try </span><span class="s2">{</span>
+            <span class="s0">int </span><span class="s1">stock </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">txStock</span><span class="s2">);</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">stock </span><span class="s2">&lt; </span><span class="s5">0</span><span class="s2">) {</span>
+                <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Stock quantity cannot be negative.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e</span><span class="s2">) {</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Invalid stock quantity format.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+        <span class="s3">// Validate Description</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">description</span><span class="s2">.</span><span class="s1">isEmpty</span><span class="s2">())</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">Product description cannot be empty.</span><span class="s0">\n</span><span class="s4">&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// Validate Image Path</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">imageUri </span><span class="s2">== </span><span class="s0">null </span><span class="s2">)</span>
+            <span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s4">&quot;</span><span class="s0">\u2022 </span><span class="s4">An image must be selected.&quot;</span><span class="s2">);</span>
+
+        <span class="s3">// Show Alert if there are errors</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">length</span><span class="s2">() &gt; </span><span class="s5">0</span><span class="s2">) {</span>
+            <span class="s1">displayInputErrorMsg </span><span class="s2">= </span><span class="s1">errorMessage</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">();</span>
+            <span class="s0">return false</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">return true</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">updateView</span><span class="s2">(</span><span class="s1">UpdateForAction updateFor</span><span class="s2">){</span>
+        <span class="s0">switch </span><span class="s2">(</span><span class="s1">updateFor</span><span class="s2">) {</span>
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSearch</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">updateObservableProductList</span><span class="s2">(</span><span class="s1">productList</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnEdit</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">updateEditProductChild</span><span class="s2">(</span><span class="s1">displayIdEdit</span><span class="s2">,</span><span class="s1">displayPriceEdit</span><span class="s2">,</span><span class="s1">displayStockEdit</span><span class="s2">,</span><span class="s1">displayDescriptionEdit</span><span class="s2">,</span><span class="s1">displayImageUrlEdit</span><span class="s2">);</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnDelete</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">updateObservableProductList</span><span class="s2">(</span><span class="s1">productList</span><span class="s2">); </span><span class="s3">//update search page in view</span>
+                <span class="s1">showManageStockHistory</span><span class="s2">(</span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">Deleted</span><span class="s2">);</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">resetEditChild</span><span class="s2">();</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnChangeStockBy</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">updateBtnAddSub</span><span class="s2">(</span><span class="s1">displayStockEdit</span><span class="s2">);</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnCancelEdit</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">resetEditChild</span><span class="s2">();</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSummitEdit</span><span class="s2">:</span>
+                <span class="s1">showManageStockHistory</span><span class="s2">(</span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">Edited</span><span class="s2">);</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">resetEditChild</span><span class="s2">();</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnCancelNew</span><span class="s2">:</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">resetNewProChild</span><span class="s2">();</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">BtnSummitNew</span><span class="s2">:</span>
+                <span class="s1">showManageStockHistory</span><span class="s2">(</span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">New </span><span class="s2">);</span>
+                <span class="s1">view</span><span class="s2">.</span><span class="s1">resetNewProChild</span><span class="s2">();</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">closeAlertSimulatorWindow</span><span class="s2">();</span><span class="s3">//close AlertSimulatorWindow if exists</span>
+                <span class="s0">break</span><span class="s2">;</span>
+
+            <span class="s0">case </span><span class="s1">UpdateForAction</span><span class="s2">.</span><span class="s1">ShowInputErrorMsg</span><span class="s2">:</span>
+                <span class="s1">alertSimulator</span><span class="s2">.</span><span class="s1">showErrorMsg</span><span class="s2">(</span><span class="s1">displayInputErrorMsg</span><span class="s2">);</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">showManageStockHistory</span><span class="s2">(</span><span class="s1">ManageProductType type</span><span class="s2">){</span>
+        <span class="s1">String dateTime </span><span class="s2">= </span><span class="s1">LocalDateTime</span><span class="s2">.</span><span class="s1">now</span><span class="s2">().</span><span class="s1">format</span><span class="s2">(</span><span class="s1">DateTimeFormatter</span><span class="s2">.</span><span class="s1">ofPattern</span><span class="s2">(</span><span class="s4">&quot;yyyy-MM-dd HH:mm&quot;</span><span class="s2">));</span>
+        <span class="s1">String record</span><span class="s2">=</span><span class="s4">&quot;&quot;</span><span class="s2">;</span>
+        <span class="s0">switch </span><span class="s2">(</span><span class="s1">type</span><span class="s2">) {</span>
+            <span class="s0">case </span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">Edited</span><span class="s2">:</span>
+                <span class="s1">record </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductId</span><span class="s2">() + </span><span class="s4">&quot; edited successfully, &quot; </span><span class="s2">+ </span><span class="s1">dateTime</span><span class="s2">;</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">case </span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">Deleted</span><span class="s2">:</span>
+                <span class="s1">record </span><span class="s2">= </span><span class="s1">theSelectedPro</span><span class="s2">.</span><span class="s1">getProductId</span><span class="s2">() + </span><span class="s4">&quot; deleted successfully, &quot; </span><span class="s2">+ </span><span class="s1">dateTime</span><span class="s2">;</span>
+                <span class="s0">break</span><span class="s2">;</span>
+            <span class="s0">case </span><span class="s1">ManageProductType</span><span class="s2">.</span><span class="s1">New </span><span class="s2">:</span>
+                <span class="s1">record </span><span class="s2">= </span><span class="s1">theNewProId </span><span class="s2">+ </span><span class="s4">&quot; added to database successfully, &quot; </span><span class="s2">+ </span><span class="s1">dateTime</span><span class="s2">;</span>
+        <span class="s2">}</span>
+        <span class="s0">if</span><span class="s2">(!</span><span class="s1">record</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s4">&quot;&quot;</span><span class="s2">))</span>
+            <span class="s1">displayManageHistory</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">record</span><span class="s2">);</span>
+        <span class="s1">historyWindow</span><span class="s2">.</span><span class="s1">showManageHistory</span><span class="s2">(</span><span class="s1">displayManageHistory</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

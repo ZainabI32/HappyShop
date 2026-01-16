@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>HistoryWindow.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #7a7e85;}
+.s5 { color: #2aacb8;}
+.s6 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+HistoryWindow.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">client</span><span class="s2">.</span><span class="s1">warehouse</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">UIStyle</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">WindowBounds</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">Scene</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">control</span><span class="s2">.</span><span class="s1">TextArea</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.</span><span class="s1">VBox</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">Stage</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ArrayList</span><span class="s2">;</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* This class provides a simple history window to display a list of events (successfully delete, edit and add a new product).</span>
+ <span class="s3">*</span>
+ <span class="s3">* - The scene is created only once to avoid unnecessary scene recreation.</span>
+ <span class="s3">* - The window is created only when needed. If the window is already visible, it will not be recreated.</span>
+ <span class="s3">* - The history text is updated dynamically in the TextArea when new data is provided.</span>
+ <span class="s3">* - The window is positioned relative to the warehouse window for a consistent UI experience.</span>
+ <span class="s3">*</span>
+ <span class="s3">* This design ensures that the history view is efficient by not recreating the scene and only displaying the window when required.</span>
+ <span class="s3">*/</span>
+
+<span class="s0">public class </span><span class="s1">HistoryWindow </span><span class="s2">{</span>
+    <span class="s0">private static int </span><span class="s1">WIDTH </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">HistoryWinWidth</span><span class="s2">;</span>
+    <span class="s0">private static int </span><span class="s1">HEIGHT </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">HistoryWinHeight</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">WarehouseView warehouseView</span><span class="s2">;</span>
+    <span class="s0">private  </span><span class="s1">Stage window </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Stage</span><span class="s2">();</span>
+    <span class="s0">private  </span><span class="s1">Scene scene</span><span class="s2">;</span>
+    <span class="s0">private  </span><span class="s1">TextArea taHistory</span><span class="s2">;</span>
+
+    <span class="s4">// Create the scene only once (to avoid recreating it multiple times)</span>
+    <span class="s0">private  void </span><span class="s1">createScene</span><span class="s2">() {</span>
+        <span class="s4">// a TextArea to show stock management history</span>
+        <span class="s1">taHistory </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextArea</span><span class="s2">();</span>
+        <span class="s1">taHistory</span><span class="s2">.</span><span class="s1">setPrefSize</span><span class="s2">(</span><span class="s5">150</span><span class="s2">,</span><span class="s5">150</span><span class="s2">);</span>
+        <span class="s1">taHistory</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">taHistory</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">textFiledStyle</span><span class="s2">);</span>
+        <span class="s1">VBox vbHistory </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s1">taHistory</span><span class="s2">);</span>
+        <span class="s1">scene </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Scene</span><span class="s2">(</span><span class="s1">vbHistory</span><span class="s2">,</span><span class="s1">WIDTH</span><span class="s2">,</span><span class="s1">HEIGHT</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s4">// Create the window only when needed (i.e., when the window is not created or closed by user but we need it again)</span>
+    <span class="s0">private  void </span><span class="s1">createWindow</span><span class="s2">(){</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">scene </span><span class="s2">== </span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">createScene</span><span class="s2">(); </span><span class="s4">// create the scene only once</span>
+        <span class="s2">}</span>
+
+        <span class="s1">window </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Stage</span><span class="s2">();</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setScene</span><span class="s2">(</span><span class="s1">scene</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setTitle</span><span class="s2">(</span><span class="s6">&quot;</span><span class="s0">\uD83C\uDFEC </span><span class="s6">Warehouse Management History&quot;</span><span class="s2">); </span><span class="s4">// for icon 🏬</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">show</span><span class="s2">();</span>
+        <span class="s4">//get the bounds of warehouse window which trigers the history window</span>
+        <span class="s4">//so that we can put the history window next to the warehouse window</span>
+        <span class="s1">WindowBounds bounds </span><span class="s2">= </span><span class="s1">warehouseView</span><span class="s2">.</span><span class="s1">getWindowBounds</span><span class="s2">();</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setX</span><span class="s2">(</span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">x </span><span class="s2">+ </span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">width </span><span class="s2">- </span><span class="s5">20</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setY</span><span class="s2">(</span><span class="s1">bounds</span><span class="s2">.</span><span class="s1">y</span><span class="s2">); </span><span class="s4">// align vertically</span>
+    <span class="s2">}</span>
+
+    <span class="s0">public  void </span><span class="s1">showManageHistory</span><span class="s2">(</span><span class="s1">ArrayList</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">history</span><span class="s2">){</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">window </span><span class="s2">==</span><span class="s0">null </span><span class="s2">||!</span><span class="s1">window</span><span class="s2">.</span><span class="s1">isShowing</span><span class="s2">() ) {</span>
+            <span class="s1">createWindow</span><span class="s2">();  </span><span class="s4">// Only create window if it's not created or unvisible</span>
+        <span class="s2">}</span>
+        <span class="s4">// Create a single string with each item on a new line</span>
+        <span class="s1">StringBuilder result </span><span class="s2">= </span><span class="s0">new </span><span class="s1">StringBuilder</span><span class="s2">();</span>
+        <span class="s0">for </span><span class="s2">(</span><span class="s1">String his </span><span class="s2">: </span><span class="s1">history</span><span class="s2">) {</span>
+            <span class="s1">result</span><span class="s2">.</span><span class="s1">append</span><span class="s2">(</span><span class="s1">his</span><span class="s2">).</span><span class="s1">append</span><span class="s2">(</span><span class="s6">&quot;</span><span class="s0">\n</span><span class="s6">&quot;</span><span class="s2">); </span><span class="s4">// Append item followed by a newline</span>
+        <span class="s2">}</span>
+        <span class="s1">taHistory</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">result</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">());</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">result</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">());</span>
+    <span class="s2">}</span>
+<span class="s2">}</span>
+</pre>
+</body>
+</html>

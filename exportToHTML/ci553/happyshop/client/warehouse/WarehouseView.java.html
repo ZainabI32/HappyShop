@@ -1,0 +1,623 @@
+<html>
+<head>
+<title>WarehouseView.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #5f826b; font-style: italic;}
+.s4 { color: #2aacb8;}
+.s5 { color: #7a7e85;}
+.s6 { color: #6aab73;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+WarehouseView.java</font>
+</center></td></tr></table>
+<pre><span class="s0">package </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">client</span><span class="s2">.</span><span class="s1">warehouse</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">catalogue</span><span class="s2">.</span><span class="s1">Product</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">StorageLocation</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">UIStyle</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">WinPosManager</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">ci553</span><span class="s2">.</span><span class="s1">happyshop</span><span class="s2">.</span><span class="s1">utility</span><span class="s2">.</span><span class="s1">WindowBounds</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">collections</span><span class="s2">.</span><span class="s1">FXCollections</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">collections</span><span class="s2">.</span><span class="s1">ObservableList</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.</span><span class="s1">ActionEvent</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">geometry</span><span class="s2">.</span><span class="s1">Pos</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">Scene</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">control</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">Image</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">image</span><span class="s2">.</span><span class="s1">ImageView</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.</span><span class="s1">HBox</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">layout</span><span class="s2">.</span><span class="s1">VBox</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">paint</span><span class="s2">.</span><span class="s1">Color</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">shape</span><span class="s2">.</span><span class="s1">Line</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">FileChooser</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">stage</span><span class="s2">.</span><span class="s1">Stage</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">File</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.</span><span class="s1">IOException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">nio</span><span class="s2">.</span><span class="s1">file</span><span class="s2">.</span><span class="s1">Path</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">nio</span><span class="s2">.</span><span class="s1">file</span><span class="s2">.</span><span class="s1">Paths</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">sql</span><span class="s2">.</span><span class="s1">SQLException</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.</span><span class="s1">ArrayList</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">geometry</span><span class="s2">.</span><span class="s1">Insets</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">javafx</span><span class="s2">.</span><span class="s1">scene</span><span class="s2">.</span><span class="s1">input</span><span class="s2">.</span><span class="s1">MouseEvent</span><span class="s2">;</span>
+<span class="s3">/**</span>
+ <span class="s3">* Some emojis used in the UI. If the emoji does not work on your OS,</span>
+ <span class="s3">* please change them to their unique Unicode codes.</span>
+ <span class="s3">* 🔍 (Search): \uD83D\uDD0D</span>
+ <span class="s3">* ➕ (Plus): \u2795</span>
+ <span class="s3">* ➖ (Minus): \u2796</span>
+ <span class="s3">* 🛒 (Shopping Cart): \uD83D\uDED2</span>
+ <span class="s3">* 🏬 (Department Store): \uD83C\uDFEC</span>
+ <span class="s3">*</span>
+ <span class="s3">* eg Button btnSearch = new Button(&quot;\uD83D\uDD0D&quot;);</span>
+ <span class="s3">*    Button btnSearch = new Button(&quot;🔍&quot;);</span>
+ <span class="s3">*    case &quot;\uD83D\uDD0D&quot;,</span>
+ <span class="s3">*    case &quot;🔍&quot;</span>
+ <span class="s3">*/</span>
+
+<span class="s3">/**</span>
+ <span class="s3">* The Warehouse interface (WarehouseView) contains two main pages:</span>
+ <span class="s3">* a divider line is between the two pages</span>
+ <span class="s3">* 1. Search Page:</span>
+ <span class="s3">*    - The key data model for the search page is an observable product list.</span>
+ <span class="s3">*    - This list is updated by the model when searching the database.</span>
+ <span class="s3">*    - A ListView observes the product list. Whenever the list changes,</span>
+ <span class="s3">*      the ListView automatically updates itself based on the specified cell factory.</span>
+ <span class="s3">*</span>
+ <span class="s3">* 2. Product Form Page:</span>
+ <span class="s3">*    - The form page contains a ComboBox for selecting between two actions:</span>
+ <span class="s3">*      * Editing an existing product</span>
+ <span class="s3">*      * Adding a new product to stock</span>
+ <span class="s3">*    - Based on the ComboBox selection, one of two VBoxes will be shown:</span>
+ <span class="s3">*      * EditProductVBox (for editing existing products), referred to as **EditChild** in the code</span>
+ <span class="s3">*      * NewProductVBox (for adding new products), referred to as **NewProChild** in the code</span>
+ <span class="s3">*    - Only one VBox (EditChild or NewProChild) is active and visible at a time, depending on the selected action.</span>
+ <span class="s3">*/</span>
+
+<span class="s0">public class </span><span class="s1">WarehouseView  </span><span class="s2">{</span>
+    <span class="s0">private final int </span><span class="s1">WIDTH </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">warehouseWinWidth</span><span class="s2">;</span>
+    <span class="s0">private final int </span><span class="s1">HEIGHT </span><span class="s2">= </span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">warehouseWinHeight</span><span class="s2">;</span>
+    <span class="s0">private final int </span><span class="s1">COLUMN_WIDTH </span><span class="s2">= </span><span class="s1">WIDTH </span><span class="s2">/ </span><span class="s4">2 </span><span class="s2">- </span><span class="s4">10</span><span class="s2">;</span>
+
+    <span class="s0">public </span><span class="s1">WarehouseController controller</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Stage viewWindow</span><span class="s2">;</span>
+    <span class="s3">/** A reference to the main window that is used to get its bounds (position and size).</span>
+     <span class="s3">* This allows us to position other windows (like the History window or alert) relative to the Warehouse window.</span>
+     <span class="s3">* It helps in keeping the UI layout consistent by placing new windows near the Warehouse window.</span>
+     <span class="s3">*/</span>
+
+    <span class="s5">//some elements in searchPage</span>
+    <span class="s1">TextField tfSearchKeyword</span><span class="s2">; </span><span class="s5">//user typing in it</span>
+    <span class="s0">private </span><span class="s1">Label laSearchSummary</span><span class="s2">; </span><span class="s5">//eg. the lable shows &quot;3 products found&quot; after search</span>
+    <span class="s0">private </span><span class="s1">ObservableList</span><span class="s2">&lt;</span><span class="s1">Product</span><span class="s2">&gt; </span><span class="s1">obeProductList</span><span class="s2">; </span><span class="s5">//observable product list</span>
+    <span class="s1">ListView</span><span class="s2">&lt;</span><span class="s1">Product</span><span class="s2">&gt; </span><span class="s1">obrLvProducts</span><span class="s2">; </span><span class="s5">//A ListView observes the product list</span>
+
+    <span class="s5">//ProductFormPage:has two children at a time,</span>
+    <span class="s1">ComboBox</span><span class="s2">&lt;</span><span class="s1">String</span><span class="s2">&gt; </span><span class="s1">cbProductFormMode</span><span class="s2">; </span><span class="s5">//the first child</span>
+    <span class="s0">private </span><span class="s1">VBox vbEditProduct</span><span class="s2">; </span><span class="s5">//the seceond child</span>
+    <span class="s0">private </span><span class="s1">VBox vbNewProduct</span><span class="s2">; </span><span class="s5">//another second child</span>
+    <span class="s1">String theProFormMode </span><span class="s2">=</span><span class="s6">&quot;EDIT&quot;</span><span class="s2">;</span>
+    <span class="s3">/** productFormPage has two children at a time,</span>
+     <span class="s3">* 1. cbProductFormMode: A ComboBox that holds two action types for the product form:</span>
+     <span class="s3">*    - &quot;EDIT&quot;: For editing an existing product</span>
+     <span class="s3">*    - &quot;NEW&quot;: For adding a new product to stock</span>
+     <span class="s3">* The action mode (either &quot;EDIT&quot; or &quot;NEW&quot;) is stored in the 'theProFormMode' variable to keep track of the current mode.</span>
+     <span class="s3">*</span>
+     <span class="s3">* The following two second childeren swap based on the selected value of the ComboBox:</span>
+     <span class="s3">* 2. vbEditProduct: contains the UI elements for editing an existing product (visible when &quot;EDIT&quot; is selected)</span>
+     <span class="s3">* 2. vbNewProduct: contains the UI elements for adding a new product to stock (visible when &quot;NEW&quot; is selected)</span>
+     <span class="s3">*/</span>
+
+    <span class="s5">//some elements in vbEditProduct, we need to getValue from them and setValue for them</span>
+    <span class="s0">private </span><span class="s1">TextField tfIdEdit</span><span class="s2">;</span>
+    <span class="s1">TextField tfPriceEdit</span><span class="s2">;</span>
+    <span class="s1">TextField tfStockEdit</span><span class="s2">;</span>
+    <span class="s1">TextField tfChangeByEdit</span><span class="s2">;</span>
+    <span class="s1">TextArea taDescriptionEdit</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ImageView ivProEdit</span><span class="s2">;</span>
+    <span class="s1">String userSelectedImageUriEdit</span><span class="s2">;</span>
+    <span class="s0">boolean </span><span class="s1">isUserSelectedImageEdit </span><span class="s2">= </span><span class="s0">false</span><span class="s2">;</span>
+    <span class="s3">/** userSelectedImageUriEdit: URI of the image selected by the user during editing.</span>
+     <span class="s3">* This value is retrieved from the image chooser when the user selects or changes the image for an existing product.</span>
+     <span class="s3">*</span>
+     <span class="s3">* isUserSelectedImageEdit: A flag indicating if the user has selected a new image for editing an existing product.</span>
+     <span class="s3">* This helps the model determine if the old image should be deleted and the new image copied to the destination folder.</span>
+     <span class="s3">*/</span>
+    <span class="s0">private </span><span class="s1">Button btnAdd</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Button btnSub</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Button btnCancelEdit</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">Button btnSubmitEdit</span><span class="s2">;</span>
+    <span class="s3">/** Normally, buttons are not kept as instance variables. However, in this case,</span>
+     <span class="s3">* btnAdd, btnSub, btnCancelEdit, and btnSubmitEdit:</span>
+     <span class="s3">* They are kept as instance variables to manage their states (enabled/disabled) when necessary,</span>
+     <span class="s3">* eg. when the Cancel or Submit buttons are clicked, to prevent unintended interactions.</span>
+     <span class="s3">*/</span>
+
+    <span class="s5">//some elements in vbNewProduct,we need to getValue from them and setValue for them</span>
+    <span class="s1">TextField tfIdNewPro</span><span class="s2">;</span>
+    <span class="s1">TextField tfPriceNewPro</span><span class="s2">;</span>
+    <span class="s1">TextField tfStockNewPro</span><span class="s2">;</span>
+    <span class="s1">TextArea taDescriptionNewPro</span><span class="s2">;</span>
+    <span class="s0">private </span><span class="s1">ImageView ivProNewPro</span><span class="s2">;</span>
+    <span class="s1">String imageUriNewPro</span><span class="s2">; </span><span class="s5">//user slected image Uri</span>
+    <span class="s5">// URI of the image selected by the user for a new product. This value is retrieved from the image chooser.</span>
+
+    <span class="s0">public void </span><span class="s1">start</span><span class="s2">(</span><span class="s1">Stage window</span><span class="s2">) {</span>
+        <span class="s1">VBox vbSearchPage </span><span class="s2">= </span><span class="s1">createSearchPage</span><span class="s2">();</span>
+        <span class="s1">VBox vbProductFormPage </span><span class="s2">= </span><span class="s1">createProductFormPage</span><span class="s2">();</span>
+
+        <span class="s5">// Divider line between SearchPage and ProductFormPage</span>
+        <span class="s1">Line line </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Line</span><span class="s2">(</span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s4">0</span><span class="s2">, </span><span class="s1">HEIGHT</span><span class="s2">);</span>
+        <span class="s1">line</span><span class="s2">.</span><span class="s1">setStrokeWidth</span><span class="s2">(</span><span class="s4">4</span><span class="s2">);</span>
+        <span class="s1">line</span><span class="s2">.</span><span class="s1">setStroke</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">LIGHTGREEN</span><span class="s2">);</span>
+        <span class="s1">VBox lineContainer </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s1">line</span><span class="s2">);</span>
+        <span class="s1">lineContainer</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">4</span><span class="s2">);</span>
+        <span class="s1">lineContainer</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s5">//top level layout manager</span>
+        <span class="s1">HBox hbRoot </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">15</span><span class="s2">, </span><span class="s1">vbSearchPage</span><span class="s2">, </span><span class="s1">lineContainer</span><span class="s2">, </span><span class="s1">vbProductFormPage</span><span class="s2">);</span>
+        <span class="s1">hbRoot</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">rootStyleWarehouse</span><span class="s2">);</span>
+
+        <span class="s1">Scene scene </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Scene</span><span class="s2">(</span><span class="s1">hbRoot</span><span class="s2">, </span><span class="s1">WIDTH</span><span class="s2">, </span><span class="s1">HEIGHT</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setScene</span><span class="s2">(</span><span class="s1">scene</span><span class="s2">);</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">setTitle</span><span class="s2">(</span><span class="s6">&quot;Search_Page  🛒🛒HappyShop_Warehouse🛒🛒  ProductForm_Page(Edit &amp; AddNew Product)&quot;</span><span class="s2">);</span>
+        <span class="s1">WinPosManager</span><span class="s2">.</span><span class="s1">registerWindow</span><span class="s2">(</span><span class="s1">window</span><span class="s2">,</span><span class="s1">WIDTH</span><span class="s2">,</span><span class="s1">HEIGHT</span><span class="s2">); </span><span class="s5">// Registers the window with WinPosManager to</span>
+        <span class="s5">// dynamically position itself based on its size, and any already displayed windows.</span>
+        <span class="s1">window</span><span class="s2">.</span><span class="s1">show</span><span class="s2">();</span>
+        <span class="s1">viewWindow </span><span class="s2">= </span><span class="s1">window</span><span class="s2">; </span><span class="s5">// Sets the global viewWindow reference to this window for future reference and management.</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private </span><span class="s1">VBox createSearchPage</span><span class="s2">() {</span>
+        <span class="s1">Label laTitle </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Search by product ID/Name&quot;</span><span class="s2">);</span>
+        <span class="s1">laTitle</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelTitleStyle</span><span class="s2">);</span>
+
+        <span class="s1">tfSearchKeyword </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfSearchKeyword</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">textFiledStyle</span><span class="s2">);</span>
+        <span class="s1">tfSearchKeyword</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s1">actionEvent -&gt; </span><span class="s2">{</span>
+            <span class="s0">try </span><span class="s2">{</span>
+                <span class="s1">controller</span><span class="s2">.</span><span class="s1">process</span><span class="s2">(</span><span class="s6">&quot;🔍&quot;</span><span class="s2">);  </span><span class="s5">//pressing enter can also do search</span>
+            <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">SQLException e</span><span class="s2">) {</span>
+                <span class="s0">throw new </span><span class="s1">RuntimeException</span><span class="s2">(</span><span class="s1">e</span><span class="s2">);</span>
+            <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">IOException e</span><span class="s2">) {</span>
+                <span class="s0">throw new </span><span class="s1">RuntimeException</span><span class="s2">(</span><span class="s1">e</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+        <span class="s1">Button btnSearch </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;🔍&quot;</span><span class="s2">);</span>
+        <span class="s5">//Button btnSearch = new Button(&quot;\uD83D\uDD0D&quot;); // Unicode for 🔍</span>
+        <span class="s1">btnSearch</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+        <span class="s1">btnSearch</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">buttonStyle</span><span class="s2">);</span>
+        <span class="s1">HBox hbSearch </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">tfSearchKeyword</span><span class="s2">, </span><span class="s1">btnSearch</span><span class="s2">);</span>
+        <span class="s1">hbSearch</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+
+        <span class="s1">laSearchSummary </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Search Summary&quot;</span><span class="s2">);</span>
+        <span class="s1">laSearchSummary</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">Button btnEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Edit&quot;</span><span class="s2">);</span>
+        <span class="s1">btnEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">greenFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnEdit</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s1">Button btnDelete </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Delete&quot;</span><span class="s2">);</span>
+        <span class="s1">btnDelete</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">grayFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnDelete</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s1">HBox hbLaBtns </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laSearchSummary</span><span class="s2">, </span><span class="s1">btnEdit</span><span class="s2">,</span><span class="s1">btnDelete</span><span class="s2">);</span>
+        <span class="s1">hbLaBtns</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+        <span class="s1">hbLaBtns</span><span class="s2">.</span><span class="s1">setPadding</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Insets</span><span class="s2">(</span><span class="s4">5</span><span class="s2">)); </span><span class="s5">//setPadding only works on Layout manager</span>
+        <span class="s5">//hbLaBtns.setStyle(&quot;-fx-padding: 5px;&quot;); //setStyle works on any Node (eg. layout manager, controls)</span>
+
+        <span class="s5">// data, an observable ArrayList, observed by obrLvProducts</span>
+        <span class="s1">obeProductList </span><span class="s2">= </span><span class="s1">FXCollections</span><span class="s2">.</span><span class="s1">observableArrayList</span><span class="s2">();</span>
+        <span class="s1">obrLvProducts </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ListView</span><span class="s2">&lt;&gt;(</span><span class="s1">obeProductList</span><span class="s2">);</span><span class="s5">//ListView proListView observes proList</span>
+        <span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">setPrefHeight</span><span class="s2">(</span><span class="s1">HEIGHT </span><span class="s2">- </span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">setFixedCellSize</span><span class="s2">(</span><span class="s4">50</span><span class="s2">);</span>
+        <span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">listViewStyle</span><span class="s2">);</span>
+
+        <span class="s1">VBox vbSearchResult </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">5</span><span class="s2">,</span><span class="s1">hbLaBtns</span><span class="s2">, </span><span class="s1">obrLvProducts</span><span class="s2">);</span>
+
+        <span class="s3">/**</span>
+         <span class="s3">* When is setCellFactory() Needed?</span>
+         <span class="s3">* If you want to customize each row’s content (e.g.,images, buttons, labels, etc.).</span>
+         <span class="s3">* If you need special formatting (like colors or borders).</span>
+         <span class="s3">*</span>
+         <span class="s3">* When is setCellFactory() NOT Needed?</span>
+         <span class="s3">* Each row is just plain text without images or formatting.</span>
+         <span class="s3">*/</span>
+        <span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">setCellFactory</span><span class="s2">(</span><span class="s1">param -&gt; </span><span class="s0">new </span><span class="s1">ListCell</span><span class="s2">&lt;</span><span class="s1">Product</span><span class="s2">&gt;() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">protected void </span><span class="s1">updateItem</span><span class="s2">(</span><span class="s1">Product product</span><span class="s2">, </span><span class="s0">boolean </span><span class="s1">empty</span><span class="s2">) {</span>
+                <span class="s0">super</span><span class="s2">.</span><span class="s1">updateItem</span><span class="s2">(</span><span class="s1">product</span><span class="s2">, </span><span class="s1">empty</span><span class="s2">);</span>
+
+                <span class="s0">if </span><span class="s2">(</span><span class="s1">empty </span><span class="s2">|| </span><span class="s1">product </span><span class="s2">== </span><span class="s0">null</span><span class="s2">) {</span>
+                    <span class="s1">setGraphic</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+                    <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;setCellFactory - empty item&quot;</span><span class="s2">);</span>
+                <span class="s2">} </span><span class="s0">else </span><span class="s2">{</span>
+                    <span class="s1">String imageName </span><span class="s2">= </span><span class="s1">product</span><span class="s2">.</span><span class="s1">getProductImageName</span><span class="s2">(); </span><span class="s5">// Get image name (e.g. &quot;0001.jpg&quot;)</span>
+                    <span class="s1">String relativeImageUrl </span><span class="s2">= </span><span class="s1">StorageLocation</span><span class="s2">.</span><span class="s1">imageFolder </span><span class="s2">+ </span><span class="s1">imageName</span><span class="s2">;</span>
+                    <span class="s5">// Get the full absolute path to the image</span>
+                    <span class="s1">Path imageFullPath </span><span class="s2">= </span><span class="s1">Paths</span><span class="s2">.</span><span class="s1">get</span><span class="s2">(</span><span class="s1">relativeImageUrl</span><span class="s2">).</span><span class="s1">toAbsolutePath</span><span class="s2">();</span>
+                    <span class="s1">String imageFullUri </span><span class="s2">= </span><span class="s1">imageFullPath</span><span class="s2">.</span><span class="s1">toUri</span><span class="s2">().</span><span class="s1">toString</span><span class="s2">();</span><span class="s5">// Build the full image Uri</span>
+
+                    <span class="s1">ImageView ivPro</span><span class="s2">;</span>
+                    <span class="s0">try </span><span class="s2">{</span>
+                        <span class="s1">ivPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageView</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s1">imageFullUri</span><span class="s2">, </span><span class="s4">50</span><span class="s2">,</span><span class="s4">45</span><span class="s2">, </span><span class="s0">true</span><span class="s2">,</span><span class="s0">true</span><span class="s2">)); </span><span class="s5">// Attempt to load the product image</span>
+                    <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+                        <span class="s5">// If loading fails, use a default image directly from the resources folder</span>
+                        <span class="s1">ivPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageView</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s6">&quot;imageHolder.jpg&quot;</span><span class="s2">,</span><span class="s4">50</span><span class="s2">,</span><span class="s4">45</span><span class="s2">,</span><span class="s0">true</span><span class="s2">,</span><span class="s0">true</span><span class="s2">)); </span><span class="s5">// Directly load from resources</span>
+                    <span class="s2">}</span>
+
+                    <span class="s1">Label laProToString </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s1">product</span><span class="s2">.</span><span class="s1">toString</span><span class="s2">()); </span><span class="s5">// Create a label for product details</span>
+                    <span class="s1">HBox hbox </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">ivPro</span><span class="s2">, </span><span class="s1">laProToString</span><span class="s2">); </span><span class="s5">// Put ImageView and label in a horizontal layout</span>
+                    <span class="s1">setGraphic</span><span class="s2">(</span><span class="s1">hbox</span><span class="s2">);  </span><span class="s5">// Set the whole row content</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+
+        <span class="s1">VBox vbSearchPage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laTitle</span><span class="s2">, </span><span class="s1">hbSearch</span><span class="s2">, </span><span class="s1">vbSearchResult</span><span class="s2">);</span>
+
+        <span class="s1">vbSearchPage</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s1">COLUMN_WIDTH</span><span class="s2">-</span><span class="s4">10</span><span class="s2">);</span>
+        <span class="s1">vbSearchPage</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">TOP_CENTER</span><span class="s2">);</span>
+
+        <span class="s0">return </span><span class="s1">vbSearchPage</span><span class="s2">;</span>
+
+        <span class="s3">/** NOTE for make image</span>
+         <span class="s3">* user selected image at runtime, like with a FileChooser, you cannot use getResource().</span>
+         <span class="s3">* getResource() is only for static files already bundled inside app.</span>
+         <span class="s3">* User-selected files are real files on the computer, not inside the app resources.</span>
+         <span class="s3">*/</span>
+    <span class="s2">}</span>
+
+    <span class="s0">private </span><span class="s1">VBox createProductFormPage</span><span class="s2">() {</span>
+        <span class="s1">cbProductFormMode </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ComboBox</span><span class="s2">&lt;&gt;();</span>
+        <span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">comboBoxStyle</span><span class="s2">);</span>
+        <span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">getItems</span><span class="s2">().</span><span class="s1">addAll</span><span class="s2">(</span><span class="s6">&quot;Edit Existing Product in Stock&quot;</span><span class="s2">, </span><span class="s6">&quot;Add New Product to Stock&quot;</span><span class="s2">);</span>
+        <span class="s5">// Set default selected value, so only when value changed trigger setOnAction</span>
+        <span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">setValue</span><span class="s2">(</span><span class="s6">&quot;Edit Existing Product in Stock&quot;</span><span class="s2">);</span>
+
+        <span class="s1">vbEditProduct </span><span class="s2">= </span><span class="s1">createEditProdcutChild</span><span class="s2">();</span>
+        <span class="s1">disableEditProductChild</span><span class="s2">(</span><span class="s0">true</span><span class="s2">); </span><span class="s5">//disable editable component until user selects a product and cilck btnEdit</span>
+        <span class="s1">vbNewProduct </span><span class="s2">= </span><span class="s1">createNewProductChild</span><span class="s2">();</span>
+
+        <span class="s5">// Initially set the second child (after ComboBox) to editProduct</span>
+        <span class="s1">VBox vbProductFormPage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">cbProductFormMode</span><span class="s2">, </span><span class="s1">vbEditProduct</span><span class="s2">);</span>
+
+        <span class="s5">// Check selected value and place the corerect child</span>
+        <span class="s5">//isImageNameEditable for imageChooser using a single method to differciate from edit/add product</span>
+        <span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s1">actionEvent -&gt; </span><span class="s2">{</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">getValue</span><span class="s2">().</span><span class="s1">equals</span><span class="s2">(</span><span class="s6">&quot;Edit Existing Product in Stock&quot;</span><span class="s2">)) {</span>
+                <span class="s1">vbProductFormPage</span><span class="s2">.</span><span class="s1">getChildren</span><span class="s2">().</span><span class="s1">set</span><span class="s2">(</span><span class="s4">1</span><span class="s2">,</span><span class="s1">vbEditProduct</span><span class="s2">);</span>
+                <span class="s1">theProFormMode </span><span class="s2">= </span><span class="s6">&quot;EDIT&quot;</span><span class="s2">;</span>
+            <span class="s2">}</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">getValue</span><span class="s2">().</span><span class="s1">equals</span><span class="s2">(</span><span class="s6">&quot;Add New Product to Stock&quot;</span><span class="s2">)) {</span>
+                <span class="s1">vbProductFormPage</span><span class="s2">.</span><span class="s1">getChildren</span><span class="s2">().</span><span class="s1">set</span><span class="s2">(</span><span class="s4">1</span><span class="s2">,</span><span class="s1">vbNewProduct</span><span class="s2">);</span>
+                <span class="s1">theProFormMode </span><span class="s2">= </span><span class="s6">&quot;NEW&quot;</span><span class="s2">;</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+
+        <span class="s1">vbProductFormPage</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s1">COLUMN_WIDTH</span><span class="s2">+</span><span class="s4">20</span><span class="s2">);</span>
+        <span class="s1">vbProductFormPage</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">TOP_CENTER</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">vbProductFormPage</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s0">private </span><span class="s1">VBox createEditProdcutChild</span><span class="s2">() {</span>
+        <span class="s5">//HBox for Id Label and TextField</span>
+        <span class="s1">Label laId </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;ID&quot;</span><span class="s2">+</span><span class="s6">&quot; &quot;</span><span class="s2">.</span><span class="s1">repeat</span><span class="s2">(</span><span class="s4">8</span><span class="s2">));</span>
+        <span class="s1">laId</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">tfIdEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfIdEdit</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">tfIdEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 100px;&quot;</span><span class="s2">);</span>
+        <span class="s1">HBox hbId </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laId</span><span class="s2">, </span><span class="s1">tfIdEdit</span><span class="s2">);</span>
+        <span class="s1">hbId</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// HBox for Price Label and TextField</span>
+        <span class="s1">Label laPrice </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Price_£&quot;</span><span class="s2">);</span>
+        <span class="s1">laPrice</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">tfPriceEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfPriceEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 100px;&quot;</span><span class="s2">);</span>
+        <span class="s1">HBox hbPrice </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laPrice</span><span class="s2">, </span><span class="s1">tfPriceEdit</span><span class="s2">);</span>
+        <span class="s1">hbPrice</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">//VBox for id and price</span>
+        <span class="s1">VBox vbIdPrice </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">hbId</span><span class="s2">, </span><span class="s1">hbPrice</span><span class="s2">);</span>
+
+        <span class="s5">// Product Image</span>
+        <span class="s1">ivProEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageView</span><span class="s2">(</span><span class="s6">&quot;WarehouseImageHolder.jpg&quot;</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setFitWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setFitHeight</span><span class="s2">(</span><span class="s4">70</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setPreserveRatio</span><span class="s2">(</span><span class="s0">true</span><span class="s2">); </span><span class="s5">//Image keeps its original shape and fits inside 100×70</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setSmooth</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span><span class="s5">//make it smooth and nice-looking</span>
+
+        <span class="s5">// Image Click Event (Open File Chooser)</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setOnMouseClicked</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::imageChooser</span><span class="s2">);</span>
+
+        <span class="s5">// HBox for Id, Price, and Image in one row</span>
+        <span class="s1">HBox hbIdPriceImage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">20</span><span class="s2">, </span><span class="s1">vbIdPrice</span><span class="s2">, </span><span class="s1">ivProEdit</span><span class="s2">);</span>
+        <span class="s1">hbIdPriceImage</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// Editing stock</span>
+        <span class="s1">Label laStock </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Stock&quot;</span><span class="s2">+</span><span class="s6">&quot; &quot;</span><span class="s2">.</span><span class="s1">repeat</span><span class="s2">(</span><span class="s4">3</span><span class="s2">));</span>
+        <span class="s1">laStock</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+
+        <span class="s5">// TextField current stock</span>
+        <span class="s1">tfStockEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">setEditable</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+        <span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 70px;&quot;</span><span class="s2">);</span>
+
+        <span class="s5">// TextField Change By</span>
+        <span class="s1">tfChangeByEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">setPromptText</span><span class="s2">(</span><span class="s6">&quot;change by&quot;</span><span class="s2">);</span>
+        <span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 50px;&quot;</span><span class="s2">);</span>
+
+        <span class="s5">// Add and Subtract Buttons for changing stock</span>
+        <span class="s1">btnAdd </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;➕&quot;</span><span class="s2">);</span>
+        <span class="s1">btnAdd</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">greenFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnAdd</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">35</span><span class="s2">);</span>
+        <span class="s1">btnAdd</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s1">btnSub </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;➖&quot;</span><span class="s2">);</span>
+        <span class="s1">btnSub</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">redFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnSub</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">35</span><span class="s2">);</span>
+        <span class="s1">btnSub</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s5">//Hbox for all things related to edit stock</span>
+        <span class="s1">HBox hbStock </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laStock</span><span class="s2">, </span><span class="s1">tfStockEdit</span><span class="s2">,</span><span class="s1">tfChangeByEdit</span><span class="s2">, </span><span class="s1">btnAdd</span><span class="s2">,</span><span class="s1">btnSub</span><span class="s2">);</span>
+        <span class="s1">hbStock</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// VBox for Description label and TextArea</span>
+        <span class="s1">Label laDes </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Description:&quot;</span><span class="s2">);</span>
+        <span class="s1">laDes</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextArea</span><span class="s2">();</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setPrefSize</span><span class="s2">(</span><span class="s1">COLUMN_WIDTH</span><span class="s2">-</span><span class="s4">20</span><span class="s2">, </span><span class="s4">20</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setWrapText</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">textFiledStyle</span><span class="s2">);</span>
+        <span class="s1">VBox vbDescription </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s1">laDes</span><span class="s2">, </span><span class="s1">taDescriptionEdit</span><span class="s2">);</span>
+        <span class="s1">vbDescription</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// OK &amp; Clear Buttons</span>
+        <span class="s1">btnCancelEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Cancel&quot;</span><span class="s2">);</span>
+        <span class="s1">btnCancelEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">grayFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnCancelEdit</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">btnCancelEdit</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s1">btnSubmitEdit </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Submit&quot;</span><span class="s2">);</span>
+        <span class="s1">btnSubmitEdit</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">blueFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnSubmitEdit</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">btnSubmitEdit</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s5">// HBox for OK &amp; Cancel Buttons</span>
+        <span class="s1">HBox hbOkCancelBtns </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">15</span><span class="s2">, </span><span class="s1">btnCancelEdit</span><span class="s2">, </span><span class="s1">btnSubmitEdit</span><span class="s2">);</span>
+        <span class="s1">hbOkCancelBtns</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+        <span class="s5">//hbOkCancelBtns.setPadding(new Insets(5));</span>
+
+        <span class="s5">// Main Layout</span>
+        <span class="s1">VBox vbEditStockChild </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">hbIdPriceImage</span><span class="s2">, </span><span class="s1">hbStock</span><span class="s2">, </span><span class="s1">vbDescription</span><span class="s2">, </span><span class="s1">hbOkCancelBtns</span><span class="s2">);</span>
+        <span class="s1">vbEditStockChild</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">manageStockChildStyle</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">vbEditStockChild</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+
+    <span class="s0">private </span><span class="s1">VBox createNewProductChild</span><span class="s2">() {</span>
+        <span class="s5">//HBox for Id Label and TextField</span>
+        <span class="s1">Label laId </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;ID&quot;</span><span class="s2">+ </span><span class="s6">&quot; &quot;</span><span class="s2">.</span><span class="s1">repeat</span><span class="s2">(</span><span class="s4">9</span><span class="s2">));</span>
+        <span class="s1">laId</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">tfIdNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfIdNewPro</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 100px;&quot;</span><span class="s2">);</span>
+        <span class="s1">HBox hbId </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laId</span><span class="s2">, </span><span class="s1">tfIdNewPro</span><span class="s2">);</span>
+        <span class="s1">hbId</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// HBox for Price Label and TextField</span>
+        <span class="s1">Label laPrice </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Price_£ &quot;</span><span class="s2">);</span>
+        <span class="s1">laPrice</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">tfPriceNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfPriceNewPro</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 100px;&quot;</span><span class="s2">);</span>
+        <span class="s1">HBox hbPrice </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laPrice</span><span class="s2">, </span><span class="s1">tfPriceNewPro</span><span class="s2">);</span>
+        <span class="s1">hbPrice</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">//  HBox for stock label and textFiled</span>
+        <span class="s1">Label laStock </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Stock&quot; </span><span class="s2">+</span><span class="s6">&quot; &quot;</span><span class="s2">.</span><span class="s1">repeat</span><span class="s2">(</span><span class="s4">4</span><span class="s2">));</span>
+        <span class="s1">laStock</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">tfStockNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextField</span><span class="s2">();</span>
+        <span class="s1">tfStockNewPro</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s6">&quot;-fx-font-size: 14px; -fx-pref-width: 100px;&quot;</span><span class="s2">);</span>
+        <span class="s1">HBox hbStock </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">laStock</span><span class="s2">, </span><span class="s1">tfStockNewPro</span><span class="s2">);</span>
+        <span class="s1">hbStock</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">//VBox for id, price,stock</span>
+        <span class="s1">VBox vbIdPriceStock </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">hbId</span><span class="s2">, </span><span class="s1">hbPrice</span><span class="s2">,</span><span class="s1">hbStock</span><span class="s2">);</span>
+
+        <span class="s5">// VBox for Product Image and name keyword</span>
+        <span class="s1">ivProNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ImageView</span><span class="s2">(</span><span class="s6">&quot;WarehouseImageHolder.jpg&quot;</span><span class="s2">);</span>
+        <span class="s1">ivProNewPro</span><span class="s2">.</span><span class="s1">setFitWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">ivProNewPro</span><span class="s2">.</span><span class="s1">setFitHeight</span><span class="s2">(</span><span class="s4">70</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setPreserveRatio</span><span class="s2">(</span><span class="s0">true</span><span class="s2">); </span><span class="s5">//Image keeps its original shape and fits inside 100×70</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setSmooth</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span><span class="s5">//make it smooth and nice-looking</span>
+
+        <span class="s5">// Image Click Event (Open File Chooser)</span>
+        <span class="s1">ivProNewPro</span><span class="s2">.</span><span class="s1">setOnMouseClicked</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::imageChooser</span><span class="s2">);</span>
+        <span class="s5">//Hbox for id,price,stock,image</span>
+        <span class="s1">HBox hbIdPriceStockImage </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">20</span><span class="s2">, </span><span class="s1">vbIdPriceStock</span><span class="s2">, </span><span class="s1">ivProNewPro</span><span class="s2">);</span>
+        <span class="s1">hbIdPriceStockImage</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// VBox for Description label and TextArea</span>
+        <span class="s1">Label laDes </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Label</span><span class="s2">(</span><span class="s6">&quot;Description:&quot;</span><span class="s2">);</span>
+        <span class="s1">laDes</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">labelStyle</span><span class="s2">);</span>
+        <span class="s1">taDescriptionNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">TextArea</span><span class="s2">();</span>
+        <span class="s1">taDescriptionNewPro</span><span class="s2">.</span><span class="s1">setPrefSize</span><span class="s2">(</span><span class="s1">COLUMN_WIDTH</span><span class="s2">-</span><span class="s4">20</span><span class="s2">, </span><span class="s4">20</span><span class="s2">);</span>
+        <span class="s1">taDescriptionNewPro</span><span class="s2">.</span><span class="s1">setWrapText</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">taDescriptionNewPro</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">textFiledStyle</span><span class="s2">);</span>
+        <span class="s1">VBox vbDescription </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s1">laDes</span><span class="s2">, </span><span class="s1">taDescriptionNewPro</span><span class="s2">);</span>
+        <span class="s1">vbDescription</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER_LEFT</span><span class="s2">);</span>
+
+        <span class="s5">// OK &amp; Cancel Buttons</span>
+        <span class="s1">Button btnClear </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Cancel&quot;</span><span class="s2">);</span>
+        <span class="s1">btnClear</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">grayFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnClear</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">btnClear</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+
+        <span class="s1">Button btnAddNewPro </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Button</span><span class="s2">(</span><span class="s6">&quot;Submit&quot;</span><span class="s2">);</span>
+        <span class="s1">btnAddNewPro</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">blueFillBtnStyle</span><span class="s2">);</span>
+        <span class="s1">btnAddNewPro</span><span class="s2">.</span><span class="s1">setPrefWidth</span><span class="s2">(</span><span class="s4">100</span><span class="s2">);</span>
+        <span class="s1">btnAddNewPro</span><span class="s2">.</span><span class="s1">setOnAction</span><span class="s2">(</span><span class="s0">this</span><span class="s1">::buttonClick</span><span class="s2">);</span>
+        <span class="s5">// HBox for OK &amp; clear Buttons</span>
+        <span class="s1">HBox hbOkCancelBtns </span><span class="s2">= </span><span class="s0">new </span><span class="s1">HBox</span><span class="s2">(</span><span class="s4">15</span><span class="s2">, </span><span class="s1">btnClear</span><span class="s2">, </span><span class="s1">btnAddNewPro</span><span class="s2">);</span>
+        <span class="s1">hbOkCancelBtns</span><span class="s2">.</span><span class="s1">setAlignment</span><span class="s2">(</span><span class="s1">Pos</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+        <span class="s5">//hbOkCancelBtns.setPadding(new Insets(5));</span>
+
+        <span class="s5">// Main Layout</span>
+        <span class="s1">VBox vbAddNewProductToStockChild </span><span class="s2">= </span><span class="s0">new </span><span class="s1">VBox</span><span class="s2">(</span><span class="s4">10</span><span class="s2">, </span><span class="s1">hbIdPriceStockImage</span><span class="s2">, </span><span class="s1">vbDescription</span><span class="s2">, </span><span class="s1">hbOkCancelBtns</span><span class="s2">);</span>
+        <span class="s1">vbAddNewProductToStockChild</span><span class="s2">.</span><span class="s1">setStyle</span><span class="s2">(</span><span class="s1">UIStyle</span><span class="s2">.</span><span class="s1">manageStockChildStyle1</span><span class="s2">);</span>
+        <span class="s0">return </span><span class="s1">vbAddNewProductToStockChild</span><span class="s2">;</span>
+    <span class="s2">}</span>
+
+    <span class="s5">//disable editable controls before user select a product and click the button edit</span>
+    <span class="s0">private void </span><span class="s1">disableEditProductChild</span><span class="s2">(</span><span class="s0">boolean </span><span class="s1">disable</span><span class="s2">) {</span>
+        <span class="s1">tfPriceEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">btnAdd</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">btnSub</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">btnCancelEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+        <span class="s1">btnSubmitEdit</span><span class="s2">.</span><span class="s1">setDisable</span><span class="s2">(</span><span class="s1">disable</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+
+    <span class="s0">private void </span><span class="s1">buttonClick</span><span class="s2">(</span><span class="s1">ActionEvent event</span><span class="s2">)  {</span>
+        <span class="s1">Button btn</span><span class="s2">= (</span><span class="s1">Button</span><span class="s2">)</span><span class="s1">event</span><span class="s2">.</span><span class="s1">getSource</span><span class="s2">();</span>
+        <span class="s1">String action </span><span class="s2">= </span><span class="s1">btn</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">();</span>
+
+        <span class="s5">//only when user click btnEidt and a product was selected, enable editable field of editChild</span>
+        <span class="s0">if</span><span class="s2">(</span><span class="s1">action</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s6">&quot;Edit&quot;</span><span class="s2">) &amp;&amp; </span><span class="s1">obrLvProducts</span><span class="s2">.</span><span class="s1">getSelectionModel</span><span class="s2">().</span><span class="s1">getSelectedItem</span><span class="s2">()!=</span><span class="s0">null</span><span class="s2">) {</span>
+            <span class="s1">disableEditProductChild</span><span class="s2">(</span><span class="s0">false</span><span class="s2">); </span><span class="s5">//a product was selected, enable editChild</span>
+            <span class="s1">cbProductFormMode</span><span class="s2">.</span><span class="s1">setValue</span><span class="s2">(</span><span class="s6">&quot;Edit Existing Product in Stock&quot;</span><span class="s2">); </span><span class="s5">//show EditChild</span>
+        <span class="s2">}</span>
+
+        <span class="s0">try</span><span class="s2">{</span>
+            <span class="s1">controller</span><span class="s2">.</span><span class="s1">process</span><span class="s2">(</span><span class="s1">action</span><span class="s2">);</span>
+        <span class="s2">}</span>
+        <span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+            <span class="s0">throw new </span><span class="s1">RuntimeException</span><span class="s2">(</span><span class="s1">e</span><span class="s2">);</span>
+        <span class="s2">}</span>
+
+    <span class="s2">}</span>
+
+    <span class="s0">private void </span><span class="s1">imageChooser</span><span class="s2">(</span><span class="s1">MouseEvent event</span><span class="s2">) {</span>
+        <span class="s1">FileChooser fileChooser </span><span class="s2">= </span><span class="s0">new </span><span class="s1">FileChooser</span><span class="s2">();</span>
+        <span class="s1">fileChooser</span><span class="s2">.</span><span class="s1">getExtensionFilters</span><span class="s2">().</span><span class="s1">add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">FileChooser</span><span class="s2">.</span><span class="s1">ExtensionFilter</span><span class="s2">(</span><span class="s6">&quot;Images&quot;</span><span class="s2">, </span><span class="s6">&quot;*.png&quot;</span><span class="s2">, </span><span class="s6">&quot;*.jpg&quot;</span><span class="s2">, </span><span class="s6">&quot;*.jpeg&quot;</span><span class="s2">));</span>
+        <span class="s1">File file </span><span class="s2">= </span><span class="s1">fileChooser</span><span class="s2">.</span><span class="s1">showOpenDialog</span><span class="s2">(</span><span class="s0">null</span><span class="s2">); </span><span class="s5">//return absolute fullpath of the user selected file</span>
+                                                              <span class="s5">//eg C:/Users/John/Pictures/sample.jpg</span>
+        <span class="s0">if </span><span class="s2">(</span><span class="s1">file </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) {</span>
+
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s6">&quot;EDIT&quot;</span><span class="s2">)) {</span>
+                <span class="s1">isUserSelectedImageEdit </span><span class="s2">= </span><span class="s0">true</span><span class="s2">;</span>
+                <span class="s5">// Set image preview</span>
+                <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">toURI</span><span class="s2">().</span><span class="s1">toString</span><span class="s2">()));</span>
+                <span class="s5">// Get the selected image path, and name</span>
+                <span class="s1">userSelectedImageUriEdit </span><span class="s2">= </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getAbsolutePath</span><span class="s2">(); </span><span class="s5">//eg C:\Users\shan\Desktop\mark.jpg</span>
+                <span class="s5">//file.getParent();  // Get the folder</span>
+                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;Selected Image Path: &quot; </span><span class="s2">+ </span><span class="s1">userSelectedImageUriEdit</span><span class="s2">);</span>
+                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;Selected Image name: &quot; </span><span class="s2">+ </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">());</span>
+            <span class="s2">}</span>
+            <span class="s0">if </span><span class="s2">(</span><span class="s1">theProFormMode</span><span class="s2">.</span><span class="s1">equals</span><span class="s2">(</span><span class="s6">&quot;NEW&quot;</span><span class="s2">)) {</span>
+                <span class="s5">// Set image preview</span>
+                <span class="s1">ivProNewPro</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s1">file</span><span class="s2">.</span><span class="s1">toURI</span><span class="s2">().</span><span class="s1">toString</span><span class="s2">()));</span>
+                <span class="s1">imageUriNewPro </span><span class="s2">= </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getAbsolutePath</span><span class="s2">();</span>
+                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;Selected Image Path: &quot; </span><span class="s2">+ </span><span class="s1">imageUriNewPro</span><span class="s2">);</span>
+                <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;Selected Image name: &quot; </span><span class="s2">+ </span><span class="s1">file</span><span class="s2">.</span><span class="s1">getName</span><span class="s2">());</span>
+            <span class="s2">}</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s5">//update the product listVew of serachPage</span>
+    <span class="s0">void </span><span class="s1">updateObservableProductList</span><span class="s2">( </span><span class="s1">ArrayList</span><span class="s2">&lt;</span><span class="s1">Product</span><span class="s2">&gt; </span><span class="s1">productList</span><span class="s2">) {</span>
+        <span class="s0">int </span><span class="s1">proCounter </span><span class="s2">= </span><span class="s1">productList</span><span class="s2">.</span><span class="s1">size</span><span class="s2">();</span>
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">proCounter</span><span class="s2">);</span>
+        <span class="s1">laSearchSummary</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">proCounter </span><span class="s2">+ </span><span class="s6">&quot; products found&quot;</span><span class="s2">);</span>
+        <span class="s1">laSearchSummary</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">obeProductList</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+        <span class="s1">obeProductList</span><span class="s2">.</span><span class="s1">addAll</span><span class="s2">(</span><span class="s1">productList</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">updateBtnAddSub</span><span class="s2">(</span><span class="s1">String stock</span><span class="s2">){</span>
+        <span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">stock</span><span class="s2">);</span>
+        <span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">();</span>
+    <span class="s2">}</span>
+
+    <span class="s5">//update interface of editing existing product in stock</span>
+    <span class="s0">void </span><span class="s1">updateEditProductChild</span><span class="s2">(</span><span class="s1">String id</span><span class="s2">, </span><span class="s1">String price</span><span class="s2">, </span><span class="s1">String stock</span><span class="s2">, </span><span class="s1">String des</span><span class="s2">, </span><span class="s1">String imageUrl</span><span class="s2">) {</span>
+        <span class="s1">tfIdEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">id</span><span class="s2">);</span>
+        <span class="s1">tfPriceEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">price</span><span class="s2">);</span>
+        <span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">stock</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s1">des</span><span class="s2">);</span>
+
+        <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s1">imageUrl</span><span class="s2">);</span>
+        <span class="s0">try</span><span class="s2">{</span>
+            <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s1">imageUrl</span><span class="s2">));  </span><span class="s5">// Attempt to load the product image</span>
+        <span class="s2">} </span><span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e</span><span class="s2">) {</span>
+            <span class="s5">// If loading fails, use a default image directly from the resources folder</span>
+            <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s6">&quot;imageHolder.jpg&quot;</span><span class="s2">));</span>
+        <span class="s2">}</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">resetEditChild</span><span class="s2">() {</span>
+        <span class="s1">tfIdEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">tfPriceEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">tfStockEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">tfChangeByEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">taDescriptionEdit</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+        <span class="s1">ivProEdit</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s6">&quot;WarehouseImageHolder.jpg&quot;</span><span class="s2">));</span>
+        <span class="s1">disableEditProductChild</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s0">void </span><span class="s1">resetNewProChild</span><span class="s2">() {</span>
+       <span class="s1">tfIdNewPro</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+       <span class="s1">tfPriceNewPro</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+       <span class="s1">tfStockNewPro</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+       <span class="s1">taDescriptionNewPro</span><span class="s2">.</span><span class="s1">setText</span><span class="s2">(</span><span class="s6">&quot;&quot;</span><span class="s2">);</span>
+       <span class="s1">ivProNewPro</span><span class="s2">.</span><span class="s1">setImage</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Image</span><span class="s2">(</span><span class="s6">&quot;WarehouseImageHolder.jpg&quot;</span><span class="s2">));</span>
+       <span class="s1">imageUriNewPro </span><span class="s2">= </span><span class="s0">null</span><span class="s2">; </span><span class="s5">//clear the selcted image</span>
+       <span class="s1">System</span><span class="s2">.</span><span class="s1">out</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s6">&quot;resetNewProChild in view called&quot;</span><span class="s2">);</span>
+    <span class="s2">}</span>
+
+    <span class="s1">WindowBounds getWindowBounds</span><span class="s2">() {</span>
+        <span class="s0">return new </span><span class="s1">WindowBounds</span><span class="s2">(</span><span class="s1">viewWindow</span><span class="s2">.</span><span class="s1">getX</span><span class="s2">(),</span>
+                                <span class="s1">viewWindow</span><span class="s2">.</span><span class="s1">getY</span><span class="s2">(),</span>
+                                <span class="s1">viewWindow</span><span class="s2">.</span><span class="s1">getWidth</span><span class="s2">(),</span>
+                                <span class="s1">viewWindow</span><span class="s2">.</span><span class="s1">getHeight</span><span class="s2">());</span>
+    <span class="s2">}</span>
+
+    <span class="s5">//   //another way to reset the editChild and NewProChild</span>
+<span class="s5">//   // remove the current one then recreate them and add them back</span>
+<span class="s5">//    //not use it in this version</span>
+<span class="s5">//    public void resetManageStockChild() {</span>
+<span class="s5">//        vbManagePage.getChildren().remove(1); // Remove the second child (editChild or addNewProChild)</span>
+<span class="s5">//</span>
+<span class="s5">//        //Decide which child to recreate and add back</span>
+<span class="s5">//        if (theManageType.equals(&quot;edit&quot;)) {</span>
+<span class="s5">//            vbEditProChild = editStockChild(); // Recreate the child</span>
+<span class="s5">//            vbManagePage.getChildren().add(vbEditProChild);</span>
+<span class="s5">//            proListView.requestFocus();</span>
+<span class="s5">//            imageSelectedEdit = false;//reset to false if the user canged image in previous editing</span>
+<span class="s5">//        }</span>
+<span class="s5">//        if (theManageType.equals(&quot;addNew&quot;)) {</span>
+<span class="s5">//            vbAddProChild = addNewProductToStockChild();  // Recreate the child</span>
+<span class="s5">//            vbManagePage.getChildren().add(vbAddProChild);</span>
+<span class="s5">//            tfIdNewPro.requestFocus();</span>
+<span class="s5">//            imageSelectedNewPro = false;</span>
+<span class="s5">//        }</span>
+<span class="s5">//    }</span>
+
+<span class="s5">//</span>
+
+<span class="s2">}</span>
+
+
+</pre>
+</body>
+</html>
