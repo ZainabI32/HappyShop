@@ -41,15 +41,15 @@ import java.util.TreeSet;
 
 public class PickerModel {
     public PickerView pickerView;
-    private OrderHub orderHub = OrderHub.getOrderHub();
+    private final OrderHub orderHub = OrderHub.getOrderHub();
 
     //two elements that need to be passed to PickerView for updating.
     private String displayTaOrderMap="";
     private String displayTaOrderDetail ="";
 
     // TreeMap (orderID,state) holding order IDs and their corresponding states.
-    private static TreeMap<Integer, OrderState> orderMap = new TreeMap<>();
-    private static TreeSet<Integer> lockedOrderIds = new TreeSet<>(); // Track locked orders by orderId
+    private static final TreeMap<Integer, OrderState> orderMap = new TreeMap<>();
+    private static final TreeSet<Integer> lockedOrderIds = new TreeSet<>(); // Track locked orders by orderId
 
     private int theOrderId=0; //Order ID assigned to a picker;
                               // 0 means no order is currently assigned.

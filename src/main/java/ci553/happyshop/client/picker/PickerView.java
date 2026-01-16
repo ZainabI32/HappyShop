@@ -34,9 +34,9 @@ public class PickerView  {
     private VBox vbOrderDetailRoot;
 
     //Three controllers needs updating when program going on
-    private TextArea taOrderMap = new TextArea();
+    private final TextArea taOrderMap = new TextArea();
           // TextArea for displaying a list of orders and their states(orderId → state)
-    private TextArea taOrderDetail = new TextArea();
+    private final TextArea taOrderDetail = new TextArea();
         // TextArea for displaying detailed information about the selected order after it is assigned to the picker.
     private Label laDetailRootTitle;
        // Label used as the title for the Order Detail section.

@@ -38,8 +38,8 @@ import javafx.stage.StageStyle;
  */
 
 public class AlertSimulator {
-    private static int WIDTH = UIStyle.AlertSimWinWidth;
-    private static int HEIGHT = UIStyle.AlertSimWinHeight;
+    private static final int WIDTH = UIStyle.AlertSimWinWidth;
+    private static final int HEIGHT = UIStyle.AlertSimWinHeight;
 
     public WarehouseView warehouseView;
     private  Stage window; //window for AlertSimulator

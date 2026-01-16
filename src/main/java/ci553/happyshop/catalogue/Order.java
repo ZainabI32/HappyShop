@@ -31,11 +31,11 @@ import java.util.ArrayList;
  */
 
 public class Order {
-    private int orderId;
+    private final int orderId;
     private OrderState state;
     private String orderedDateTime="";
-    private String progressingDateTime="";
-    private String collectedDateTime="";
+    private final String progressingDateTime="";
+    private final String collectedDateTime="";
     private ArrayList<Product> productList = new ArrayList<>(); //Trolley
 
     // Constructor used by OrderHub to create a new order for a customer.

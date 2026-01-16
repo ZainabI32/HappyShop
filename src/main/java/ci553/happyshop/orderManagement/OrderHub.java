@@ -47,7 +47,7 @@ public class OrderHub  {
     private final Path progressingPath = StorageLocation.progressingPath;
     private final Path collectedPath = StorageLocation.collectedPath;
 
-    private TreeMap<Integer,OrderState> orderMap = new TreeMap<>();
+    private final TreeMap<Integer,OrderState> orderMap = new TreeMap<>();
     private TreeMap<Integer,OrderState> OrderedOrderMap = new TreeMap<>();
     private TreeMap<Integer,OrderState> progressingOrderMap = new TreeMap<>();
 
@@ -59,8 +59,8 @@ public class OrderHub  {
      *   but collected orders are shown for a limited time (10 seconds).
      * - PickerModels will be notified only of orders in the "ordered" or "progressing" states, filtering out collected orders.
      */
-    private ArrayList<OrderTracker> orderTrackerList = new ArrayList<>();
-    private ArrayList<PickerModel> pickerModelList = new ArrayList<>();
+    private final ArrayList<OrderTracker> orderTrackerList = new ArrayList<>();
+    private final ArrayList<PickerModel> pickerModelList = new ArrayList<>();
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 

@@ -1,11 +1,15 @@
 package ci553.happyshop.client.customer;
 
-import ci553.happyshop.catalogue.Order;
 import ci553.happyshop.catalogue.Product;
+import ci553.happyshop.catalogue.Order;
 import ci553.happyshop.storageAccess.DatabaseRW;
 import ci553.happyshop.orderManagement.OrderHub;
 import ci553.happyshop.utility.StorageLocation;
 import ci553.happyshop.utility.ProductListFormatter;
+import ci553.happyshop.client.customer.OrganizedTrolley;
+import ci553.happyshop.client.customer.StockShortageHandler;
+import ci553.happyshop.client.customer.FlexibleSearchEngine;
+import ci553.happyshop.client.customer.PaymentProcessor;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,173 +18,306 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
-/**
- * TODO
- * You can either directly modify the CustomerModel class to implement the required tasks,
- * or create a subclass of CustomerModel and override specific methods where appropriate.
- */
 public class CustomerModel {
     public CustomerView cusView;
-    public DatabaseRW databaseRW; //Interface type, not specific implementation
-                                  //Benefits: Flexibility: Easily change the database implementation.
+    public DatabaseRW databaseRW;
 
-    private Product theProduct =null; // product found from search
-    private ArrayList<Product> trolley =  new ArrayList<>(); // a list of products in trolley
+    // Enhanced components
+    protected OrganizedTrolley organizedTrolley;
+    protected FlexibleSearchEngine searchEngine;
+    private Product theProduct = null;
+    private final ArrayList<Product> trolley = new ArrayList<>();
 
-    // Four UI elements to be passed to CustomerView for display updates.
-    private String imageName = "imageHolder.jpg";                // Image to show in product preview (Search Page)
-    private String displayLaSearchResult = "No Product was searched yet"; // Label showing search result message (Search Page)
-    private String displayTaTrolley = "";                                // Text area content showing current trolley items (Trolley Page)
-    private String displayTaReceipt = "";                                // Text area content showing receipt after checkout (Receipt Page)
+    // UI display elements - made public for controller access
+    public String imageName = "imageHolder.jpg";
+    public String displayLaSearchResult = "No Product was searched yet";
+    public String displayTaTrolley = "";
+    public String displayTaReceipt = "";
 
-    //SELECT productID, description, image, unitPrice,inStock quantity
-    void search() throws SQLException {
-        String productId = cusView.tfId.getText().trim();
-        if(!productId.isEmpty()){
-            theProduct = databaseRW.searchByProductId(productId); //search database
-            if(theProduct != null && theProduct.getStockQuantity()>0){
-                double unitPrice = theProduct.getUnitPrice();
-                String description = theProduct.getProductDescription();
-                int stock = theProduct.getStockQuantity();
+    // Constructor to initialize enhanced components
+    public CustomerModel() {
+        this.organizedTrolley = new OrganizedTrolley();
+    }
 
-                String baseInfo = String.format("Product_Id: %s\n%s,\nPrice: £%.2f", productId, description, unitPrice);
-                String quantityInfo = stock < 100 ? String.format("\n%d units left.", stock) : "";
-                displayLaSearchResult = baseInfo + quantityInfo;
-                System.out.println(displayLaSearchResult);
-            }
-            else{
-                theProduct=null;
-                displayLaSearchResult = "No Product was found with ID " + productId;
-                System.out.println("No Product was found with ID " + productId);
-            }
-        }else{
-            theProduct=null;
-            displayLaSearchResult = "Please type ProductID";
-            System.out.println("Please type ProductID.");
+    // Set databaseRW and initialize search engine
+    public void setDatabaseRW(DatabaseRW databaseRW) {
+        this.databaseRW = databaseRW;
+        this.searchEngine = new FlexibleSearchEngine(databaseRW);
+    }
+
+    // ========================================================================
+    // FLEXIBLE SEARCH METHODS - Complete Implementation
+    // ========================================================================
+
+    // BASIC SEARCH: By ID using FlexibleSearchEngine
+    public void searchById(String productId) throws SQLException {
+        if (productId != null && !productId.trim().isEmpty()) {
+            FlexibleSearchEngine.SearchCriteria.Builder builder = new FlexibleSearchEngine.SearchCriteria.Builder();
+            builder.productId(productId.trim());
+            builder.searchType(FlexibleSearchEngine.SearchType.EXACT_ID);
+
+            List<Product> results = searchEngine.search(builder.build());
+            handleSearchResults(results, "ID: " + productId);
+        } else {
+            theProduct = null;
+            displayLaSearchResult = "Please enter a Product ID";
         }
         updateView();
     }
 
-    void addToTrolley(){
-        if(theProduct!= null){
+    // BASIC SEARCH: By name using FlexibleSearchEngine
+    public void searchByName(String productName) throws SQLException {
+        if (productName != null && !productName.trim().isEmpty()) {
+            FlexibleSearchEngine.SearchCriteria.Builder builder = new FlexibleSearchEngine.SearchCriteria.Builder();
+            builder.productName(productName.trim());
+            builder.searchType(FlexibleSearchEngine.SearchType.PARTIAL_NAME);
 
-            // trolley.add(theProduct) — Product is appended to the end of the trolley.
-            // To keep the trolley organized, add code here or call a method that:
-            //TODO
-            // 1. Merges items with the same product ID (combining their quantities).
-            // 2. Sorts the products in the trolley by product ID.
-            trolley.add(theProduct);
-            displayTaTrolley = ProductListFormatter.buildString(trolley); //build a String for trolley so that we can show it
+            List<Product> results = searchEngine.search(builder.build());
+            handleSearchResults(results, "Name: " + productName);
+        } else {
+            theProduct = null;
+            displayLaSearchResult = "Please enter a Product Name";
         }
-        else{
-            displayLaSearchResult = "Please search for an available product before adding it to the trolley";
-            System.out.println("must search and get an available product before add to trolley");
-        }
-        displayTaReceipt=""; // Clear receipt to switch back to trolleyPage (receipt shows only when not empty)
         updateView();
     }
 
+    // ADVANCED SEARCH: Multi-criteria search using FlexibleSearchEngine
+    public void performAdvancedSearch(String productId, String productName, String category,
+                                      Double minPrice, Double maxPrice, boolean inStockOnly) throws SQLException {
+
+        FlexibleSearchEngine.SearchCriteria.Builder builder = new FlexibleSearchEngine.SearchCriteria.Builder();
+
+        if (productId != null && !productId.trim().isEmpty()) {
+            builder.productId(productId.trim());
+        }
+
+        if (productName != null && !productName.trim().isEmpty()) {
+            builder.productName(productName.trim());
+        }
+
+        if (category != null && !category.trim().isEmpty()) {
+            builder.category(category.trim());
+        }
+
+        if (minPrice != null || maxPrice != null) {
+            builder.priceRange(minPrice, maxPrice);
+        }
+
+        if (inStockOnly) {
+            builder.inStockOnly(true);
+        }
+
+        builder.searchType(FlexibleSearchEngine.SearchType.COMBINED);
+
+        List<Product> results = searchEngine.search(builder.build());
+        String searchCriteria = buildSearchCriteriaString(productId, productName, category, minPrice, maxPrice, inStockOnly);
+        handleSearchResults(results, searchCriteria);
+        updateView();
+    }
+
+    // QUICK SEARCH: By name using FlexibleSearchEngine
+    public void quickSearchByName(String name) throws SQLException {
+        if (name != null && !name.trim().isEmpty()) {
+            List<Product> results = searchEngine.quickSearchByName(name);
+            handleSearchResults(results, "name: " + name);
+        }
+    }
+
+    // QUICK SEARCH: By price range using FlexibleSearchEngine
+    public void quickSearchByPriceRange(double min, double max) throws SQLException {
+        List<Product> results = searchEngine.quickSearchByPriceRange(min, max);
+        handleSearchResults(results, String.format("price range: £%.2f - £%.2f", min, max));
+    }
+
+    // QUICK SEARCH: In-stock items using FlexibleSearchEngine
+    public void quickSearchInStock() throws SQLException {
+        List<Product> results = searchEngine.quickSearchInStock();
+        handleSearchResults(results, "in-stock items");
+    }
+
+    // HELPER: Handle search results from FlexibleSearchEngine
+    private void handleSearchResults(List<Product> results, String searchCriteria) {
+        if (results.isEmpty()) {
+            theProduct = null;
+            displayLaSearchResult = String.format("No products found for %s", searchCriteria);
+            System.out.println("No products found for: " + searchCriteria);
+        } else if (results.size() == 1) {
+            theProduct = results.get(0);
+            if (theProduct.getStockQuantity() > 0) {
+                displayLaSearchResult = formatProductInfo(theProduct);
+                System.out.println("Single product found: " + theProduct.getProductId());
+            } else {
+                theProduct = null;
+                displayLaSearchResult = "Product found but out of stock";
+                System.out.println("Product out of stock: " + results.get(0).getProductId());
+            }
+        } else {
+            theProduct = results.get(0);
+            displayLaSearchResult = String.format("Found %d products for %s. Showing first:\n%s",
+                    results.size(), searchCriteria, formatProductInfo(theProduct));
+            System.out.println("Multiple products found: " + results.size());
+        }
+    }
+
+    // HELPER: Format product information for display
+    private String formatProductInfo(Product product) {
+        return String.format("Product ID: %s\n%s\nPrice: £%.2f\nStock: %d units",
+                product.getProductId(),
+                product.getProductDescription(),
+                product.getUnitPrice(),
+                product.getStockQuantity());
+    }
+
+    // HELPER: Build search criteria description string
+    private String buildSearchCriteriaString(String productId, String productName, String category,
+                                             Double minPrice, Double maxPrice, boolean inStockOnly) {
+        StringBuilder criteria = new StringBuilder();
+        if (productId != null && !productId.isEmpty()) criteria.append("ID:").append(productId).append(" ");
+        if (productName != null && !productName.isEmpty()) criteria.append("Name:").append(productName).append(" ");
+        if (category != null && !category.isEmpty()) criteria.append("Category:").append(category).append(" ");
+        if (minPrice != null) criteria.append("Min:£").append(minPrice).append(" ");
+        if (maxPrice != null) criteria.append("Max:£").append(maxPrice).append(" ");
+        if (inStockOnly) criteria.append("(In Stock Only)");
+        return criteria.toString().trim();
+    }
+
+    // SEARCH ENHANCEMENT FEATURES
+    public List<String> getSearchSuggestions(String partialInput) {
+        return searchEngine.getSearchSuggestions(partialInput);
+    }
+
+    public List<String> getRecentSearches() {
+        return searchEngine.getRecentSearches();
+    }
+
+    public List<String> getPopularSearches() {
+        return searchEngine.getPopularSearches();
+    }
+
+    public List<Product> getLastSearchResults() {
+        return searchEngine.getLastSearchResults();
+    }
+
+    // ========================================================================
+    // TROLLEY & CHECKOUT METHODS (with OrganizedTrolley)
+    // ========================================================================
+
+    // Enhanced addToTrolley using OrganizedTrolley
+    void addToTrolley() {
+        if (theProduct != null) {
+            theProduct.setOrderedQuantity(1);
+            organizedTrolley.addProduct(theProduct);
+            displayTaTrolley = organizedTrolley.getTrolleySummary();
+            displayLaSearchResult = "Product added to trolley";
+            updateView();
+        }
+    }
+
+    // Enhanced checkout with payment processing and stock handling
     void checkOut() throws IOException, SQLException {
-        if(!trolley.isEmpty()){
-            // Group the products in the trolley by productId to optimize stock checking
-            // Check the database for sufficient stock for all products in the trolley.
-            // If any products are insufficient, the update will be rolled back.
-            // If all products are sufficient, the database will be updated, and insufficientProducts will be empty.
-            // Note: If the trolley is already organized (merged and sorted), grouping is unnecessary.
-            ArrayList<Product> groupedTrolley= groupProductsById(trolley);
-            ArrayList<Product> insufficientProducts= databaseRW.purchaseStocks(groupedTrolley);
+        if (!organizedTrolley.isEmpty()) {
+            ArrayList<Product> trolleyItems = new ArrayList<>(organizedTrolley.getOrganizedTrolley());
+            ArrayList<Product> insufficientProducts = databaseRW.purchaseStocks(trolleyItems);
 
-            if(insufficientProducts.isEmpty()){ // If stock is sufficient for all products
-                //get OrderHub and tell it to make a new Order
-                OrderHub orderHub =OrderHub.getOrderHub();
-                Order theOrder = orderHub.newOrder(trolley);
-                trolley.clear();
-                displayTaTrolley ="";
-                displayTaReceipt = String.format(
-                        "Order_ID: %s\nOrdered_Date_Time: %s\n%s",
-                        theOrder.getOrderId(),
-                        theOrder.getOrderedDateTime(),
-                        ProductListFormatter.buildString(theOrder.getProductList())
-                );
-                System.out.println(displayTaReceipt);
-            }
-            else{ // Some products have insufficient stock — build an error message to inform the customer
-                StringBuilder errorMsg = new StringBuilder();
-                for(Product p : insufficientProducts){
-                    errorMsg.append("\u2022 "+ p.getProductId()).append(", ")
-                            .append(p.getProductDescription()).append(" (Only ")
-                            .append(p.getStockQuantity()).append(" available, ")
-                            .append(p.getOrderedQuantity()).append(" requested)\n");
+            if (insufficientProducts.isEmpty()) {
+                // All stock available - proceed with payment
+                OrderHub orderHub = OrderHub.getOrderHub();
+                Order theOrder = orderHub.newOrder(trolleyItems);
+
+                // Process payment
+                double totalAmount = organizedTrolley.getTotalPrice();
+                PaymentProcessor.PaymentResult paymentResult = PaymentProcessor.processPayment(theOrder, totalAmount);
+
+                if (paymentResult.isSuccess()) {
+                    // Payment successful - clear trolley and show receipt
+                    organizedTrolley.clear();
+                    displayTaTrolley = "";
+                    displayTaReceipt = String.format(
+                            "ORDER CONFIRMED\n" +
+                                    "Transaction ID: %s\n" +
+                                    "Payment Method: %s\n" +
+                                    "Order ID: %s\n" +
+                                    "Ordered Date/Time: %s\n" +
+                                    "Total Paid: £%.2f\n\n" +
+                                    "Items Purchased:\n%s",
+                            paymentResult.getTransactionId(),
+                            paymentResult.getPaymentMethod().getDisplayName(),
+                            theOrder.getOrderId(),
+                            theOrder.getOrderedDateTime(),
+                            totalAmount,
+                            ProductListFormatter.buildString(theOrder.getProductList())
+                    );
+                    PaymentProcessor.showPaymentSuccess(paymentResult);
+                } else {
+                    // Payment failed - show error message
+                    displayLaSearchResult = "Payment failed. Please try again.";
+                    PaymentProcessor.showPaymentFailure(paymentResult);
                 }
-                theProduct=null;
+            } else {
+                // Stock shortage - handle gracefully
+                StockShortageHandler.StockShortageResult result =
+                        StockShortageHandler.showStockShortageDialog(insufficientProducts);
 
-                //TODO
-                // Add the following logic here:
-                // 1. Remove products with insufficient stock from the trolley.
-                // 2. Trigger a message window to notify the customer about the insufficient stock, rather than directly changing displayLaSearchResult.
-                //You can use the provided RemoveProductNotifier class and its showRemovalMsg method for this purpose.
-                //remember close the message window where appropriate (using method closeNotifierWindow() of RemoveProductNotifier class)
-                displayLaSearchResult = "Checkout failed due to insufficient stock for the following products:\n" + errorMsg.toString();
-                System.out.println("stock is not enough");
+                if (result.shouldProceed()) {
+                    // Auto-adjust quantities
+                    StockShortageHandler.autoAdjustQuantities(result.getProductsToReduce());
+
+                    // Remove out-of-stock items
+                    for (Product product : result.getProductsToRemove()) {
+                        organizedTrolley.removeProduct(product.getProductId());
+                    }
+
+                    // Update trolley display
+                    displayTaTrolley = organizedTrolley.getTrolleySummary();
+
+                    String adjustmentMessage = StockShortageHandler.createAdjustmentSummary(
+                            result.getProductsToRemove(),
+                            result.getProductsToReduce()
+                    );
+                    StockShortageHandler.showSuccessNotification(adjustmentMessage);
+                } else {
+                    displayLaSearchResult = "Checkout cancelled. Please review your trolley.";
+                }
             }
-        }
-        else{
+        } else {
             displayTaTrolley = "Your trolley is empty";
             System.out.println("Your trolley is empty");
         }
         updateView();
     }
 
-    /**
-     * Groups products by their productId to optimize database queries and updates.
-     * By grouping products, we can check the stock for a given `productId` once, rather than repeatedly
-     */
-    private ArrayList<Product> groupProductsById(ArrayList<Product> proList) {
-        Map<String, Product> grouped = new HashMap<>();
-        for (Product p : proList) {
-            String id = p.getProductId();
-            if (grouped.containsKey(id)) {
-                Product existing = grouped.get(id);
-                existing.setOrderedQuantity(existing.getOrderedQuantity() + p.getOrderedQuantity());
-            } else {
-                // Make a shallow copy to avoid modifying the original
-                grouped.put(id,new Product(p.getProductId(),p.getProductDescription(),
-                        p.getProductImageName(),p.getUnitPrice(),p.getStockQuantity()));
-            }
-        }
-        return new ArrayList<>(grouped.values());
-    }
-
-    void cancel(){
-        trolley.clear();
-        displayTaTrolley="";
+    // Trolley management methods
+    void cancel() {
+        organizedTrolley.clear();
+        displayTaTrolley = organizedTrolley.getTrolleySummary();
+        displayTaReceipt = "";
         updateView();
     }
-    void closeReceipt(){
-        displayTaReceipt="";
+
+    void closeReceipt() {
+        displayTaReceipt = "";
     }
 
     void updateView() {
-        if(theProduct != null){
+        if (theProduct != null) {
             imageName = theProduct.getProductImageName();
-            String relativeImageUrl = StorageLocation.imageFolder +imageName; //relative file path, eg images/0001.jpg
-            // Get the full absolute path to the image
+            String relativeImageUrl = StorageLocation.imageFolder + imageName;
             Path imageFullPath = Paths.get(relativeImageUrl).toAbsolutePath();
-            imageName = imageFullPath.toUri().toString(); //get the image full Uri then convert to String
-            System.out.println("Image absolute path: " + imageFullPath); // Debugging to ensure path is correct
-        }
-        else{
+            imageName = imageFullPath.toUri().toString();
+        } else {
             imageName = "imageHolder.jpg";
         }
-        cusView.update(imageName, displayLaSearchResult, displayTaTrolley,displayTaReceipt);
+        cusView.update(imageName, displayLaSearchResult, displayTaTrolley, displayTaReceipt);
     }
-     // extra notes:
-     //Path.toUri(): Converts a Path object (a file or a directory path) to a URI object.
-     //File.toURI(): Converts a File object (a file on the filesystem) to a URI object
 
-    //for test only
+    // Getter methods
     public ArrayList<Product> getTrolley() {
-        return trolley;
+        return new ArrayList<>(organizedTrolley.getOrganizedTrolley());
+    }
+
+    public OrganizedTrolley getOrganizedTrolley() {
+        return organizedTrolley;
     }
 }

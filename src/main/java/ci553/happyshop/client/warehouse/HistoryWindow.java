@@ -20,8 +20,8 @@ import java.util.ArrayList;
  */
 
 public class HistoryWindow {
-    private static int WIDTH = UIStyle.HistoryWinWidth;
-    private static int HEIGHT = UIStyle.HistoryWinHeight;
+    private static final int WIDTH = UIStyle.HistoryWinWidth;
+    private static final int HEIGHT = UIStyle.HistoryWinHeight;
 
     public WarehouseView warehouseView;
     private  Stage window = new Stage();
@@ -66,6 +66,6 @@ public class HistoryWindow {
             result.append(his).append("\n"); // Append item followed by a newline
         }
         taHistory.setText(result.toString());
-        System.out.println(result.toString());
+        System.out.println(result);
     }
 }

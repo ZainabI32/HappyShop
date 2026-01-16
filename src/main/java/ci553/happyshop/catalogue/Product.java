@@ -12,12 +12,12 @@ package ci553.happyshop.catalogue;
  */
 
 public class Product implements Comparable<Product> {
-    private String proId;
-    private String proDescription;
-    private String proImageName;
-    private double unitPrice;
+    private final String proId;
+    private final String proDescription;
+    private final String proImageName;
+    private final double unitPrice;
     private int orderedQuantity =1; //The quantity of this product in the customer's order.
-    private int stockQuantity;//
+    private final int stockQuantity;//
 
     /**
      * Constructor,used by DatabaseRW, make product from searching ResultSet

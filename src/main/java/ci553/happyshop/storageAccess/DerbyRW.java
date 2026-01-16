@@ -19,8 +19,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 
 public class DerbyRW implements DatabaseRW {
-    private static String dbURL = DatabaseRWFactory.dbURL; // Shared by all instances
-    private  Lock lock = new ReentrantLock(); // Each instance has its own lock
+    private static final String dbURL = DatabaseRWFactory.dbURL; // Shared by all instances
+    private final Lock lock = new ReentrantLock(); // Each instance has its own lock
 
     //search product by product Id or name, return a list of products or null
     //search by Id at first, if get null, search by product name
@@ -305,8 +305,7 @@ public class DerbyRW implements DatabaseRW {
             // If count = 0, the ID is available, return true
             if (rs.next()) { // Move cursor to the first (and only) row
                 int count = rs.getInt(1); // Get the first column value (the count)
-                if (count == 0) return true;
-                else return false;
+                return count == 0;
             }
             return false; // Default case (should not happen)
         }

@@ -30,8 +30,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SetOrderFileSystem {
     private static final Lock lock = new ReentrantLock();    // Create a global lock
-    private static Path orderCounterPath = StorageLocation.orderCounterPath;
-    private static Path[] foldersPaths = {
+    private static final Path orderCounterPath = StorageLocation.orderCounterPath;
+    private static final Path[] foldersPaths = {
             StorageLocation.ordersPath,
             StorageLocation.orderedPath,
             StorageLocation.progressingPath,

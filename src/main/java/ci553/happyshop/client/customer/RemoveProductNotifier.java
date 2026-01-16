@@ -34,8 +34,8 @@ import javafx.stage.Stage;
 public class RemoveProductNotifier {
     public CustomerView cusView; //tracking the window of cusView
 
-    private static int WIDTH = UIStyle.removeProNotifierWinWidth;
-    private static int HEIGHT = UIStyle.removeProNotifierWinHeight;
+    private static final int WIDTH = UIStyle.removeProNotifierWinWidth;
+    private static final int HEIGHT = UIStyle.removeProNotifierWinHeight;
 
     private Stage window; //window for ProductRemovalNotifier
     private Scene scene; // Scene for ProductRemovalNotifier
@@ -80,12 +80,11 @@ public class RemoveProductNotifier {
     }
 
     private String cutomerActionBuilder(){
-        StringBuilder actions = new StringBuilder(" \u26A1 You can now: \n");
-        actions.append("\u2022 Checkout your trolley as it is \n");
-        actions.append("\u2022 Re-add the removed products (up to the available quantity) \n");
-        actions.append("\u2022 Or cancel your trolley if you no longer wish to proceed.\n");
-        actions.append("Thank you for understanding! \n");
-        return  actions.toString();
+        String actions = " \u26A1 You can now: \n" + "\u2022 Checkout your trolley as it is \n" +
+                "\u2022 Re-add the removed products (up to the available quantity) \n" +
+                "\u2022 Or cancel your trolley if you no longer wish to proceed.\n" +
+                "Thank you for understanding! \n";
+        return actions;
     }
 
     // Create the window if not exists
